@@ -1,0 +1,6 @@
+{% extends 'admin/model/list.html' %}
+{% block list_row_actions %}
+{{ super() }}
+
+  <a href="{{ url_for('.details_view', id=get_pk_value(row)) }}"><span class="glyphicon glyphicon-magnet"></span></a>
+{% endblock %}

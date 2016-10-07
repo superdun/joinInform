@@ -1,0 +1,81 @@
+{% extends 'admin_view/index.html' %}
+{% block body %}
+{{ super() }}
+<div class="col-md-2"></div>
+<div class='col-md-8 page-article' >
+    <h1 class='article-title'>{{item.name}}</h1>
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">任课教师</h3>
+        </div>
+        <div class="panel-body">{{item.present_teacher}}</div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">课程简介</h3>
+        </div>
+        <div class="panel-body">{{item.summary}}</div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">课程信息</h3>
+        </div>
+        <div class="panel-body">
+            每堂课时间：{{item.hours_per_class}}  小时;
+            <br/>
+            每堂课费用：{{item.fee_per_class}}  元
+        </div>
+    </div>
+
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">课程进度</h3>
+        </div>
+        <div class="panel-body">
+           已完成课数：{{item.present_class}}/{{item.total_class}}; &nbsp&nbsp&nbsp&nbsp    已完成时间：{{item.present_class*item.hours_per_class}} /{{item.total_class*item.hours_per_class}} 小时<br /><br />
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="{{ item.present_class*100/item.total_class }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ item.present_class*100/item.total_class }}%;">
+                {% if item.present_class==0 %}
+                {% set module='' %}
+                {%else%}
+                {% set module='当前完成模块：'+item.modules.split(',')[item.present_class-1] %}
+                {% endif %}
+                {{module}}</div>
+            </div>
+        </div>
+    </div>
+        <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">登记详情</h3>
+        </div>
+        <div class="panel-body">
+
+<input type="text" id="checkdates" />
+        </div>
+    </div>
+
+</div>
+<div class="col-md-2"></div>
+<input type="text" id = 'dates_tmp' hidden="true" value="{{item.dates}}">
+<input type="text" id = 'records_tmp' hidden="true" value="{{item.records}}">
+<input type="text" id = 'select_date_tmp' hidden="true">
+
+
+
+<div class="modal fade" id="myModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+        <h4 class="modal-title" id="modal-title"></h4>
+      </div>
+      <div class="modal-body" id="modal-body">
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal <--></-->
+{% endblock body %}
