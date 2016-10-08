@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from flask import Flask, url_for, redirect, render_template, request, abort,jsonify
+from flask import Flask, url_for, redirect, render_template, request, abort, jsonify
 from flask_admin import Admin, BaseView, expose, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.contrib.sqla.filters import BooleanEqualFilter
@@ -14,7 +14,6 @@ from dbORM import db, Teachers, Students, Courses, Teacherstages, Role, app
 from flask_security import Security, SQLAlchemyUserDatastore, \
     UserMixin, RoleMixin, login_required, current_user
 from flask_security.utils import encrypt_password
-
 
 
 class MyHomeView(AdminIndexView):
@@ -178,12 +177,23 @@ class CourseView(MyTeacherBaseView):
         if not model:
             return redirect(url_for('.index'))
         return self.render('admin_view/my_checkin_template.html', model=model)
-    @expose('/api/detail/<id>',methods=['GET',])
+
+    @expose('/api/detail/<id>', methods=['GET', ])
     def deta_view(self, id):
         item = self.session.query(self.model).get(id)
+        name = item.name
+        id = item.id
+        students = []
+        records = item.records
+        dates = item.dates
+        for i in item.student_list:
+            if i.alias_names:
+                students.append({'id': i.id, 'name': i.alias_names})
+            else:
+                students.append({'id': i.id, 'name': i.chinese_name})
         if not item:
             return jsonify('false')
-        return jsonify(item)
+        return jsonify({'id': id, 'name': name, 'records': records, 'dates': dates, 'students': students})
 
 
 class TeacherstagesView(MyAdminBaseView):
@@ -225,7 +235,6 @@ def security_context_processor():
 # img_domain=img_domain, thumbnail=thumbnail)
 
 
-
 if __name__ == '__main__':
 
-    app.run(debug=True, port=7777)
+    app.run(debug=True, port=7778)

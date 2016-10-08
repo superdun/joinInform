@@ -68,9 +68,9 @@ class Students(db.Model):
 
     def __repr__(self):
         if self.chinese_name:
-            return self.chinese_name.encode('utf-8').decode('utf-8')
+            return self.chinese_name
         elif self.alias_name:
-            return self.alias_name.encode('utf-8').decode('utf-8')
+            return self.alias_name
 # Flask-Admin can't create model if it has constructor with non-default
 # parameters
 
@@ -98,11 +98,11 @@ class Teachers(db.Model, UserMixin):
 
     def __repr__(self):
         if self.chinese_name:
-            return self.chinese_name.encode('utf-8')
+            return self.chinese_name
         elif self.alias_name:
-            return self.alias_name.encode('utf-8')
+            return self.alias_name
         elif self.email:
-            return self.email.encode('utf-8')
+            return self.email
 
 
 class Teacherstages(db.Model):
@@ -115,7 +115,7 @@ class Teacherstages(db.Model):
         self.payment_per_hour = payment_per_hour
 
     def __repr__(self):
-        return self.name.encode('utf-8')
+        return self.name
 
 
 class Courses(db.Model):
@@ -154,7 +154,7 @@ class Courses(db.Model):
         self.records = records
 
     def __repr__(self):
-        return self.name.encode('utf-8')
+        return self.name
 
 
 class Role(db.Model):
@@ -163,4 +163,4 @@ class Role(db.Model):
     description = db.Column(db.String(255))
 
     def __str__(self):
-        return self.name.encode('utf-8')
+        return self.name

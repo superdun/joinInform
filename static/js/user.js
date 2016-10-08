@@ -5,10 +5,16 @@ $(window).load(function()
     var today = new Date();
 
     var y = today.getFullYear();
-    //array ["12/16/2016"]
-    var dates = $('#dates_tmp').val().split(',');
-    //json，{"12/16/2016":{"students":[1],"comment":"江苏苏州"}}
+    var dates = ''
+    if($('#dates_tmp').val()){
+            //array ["12/16/2016"]
+        dates = $('#dates_tmp').val().split(',');
+    }
+    if ($('#records_tmp').val()){
+            //json，{"12/16/2016":{"students":[1],"comment":"江苏苏州"}}
     var records = JSON.parse($('#records_tmp').val());
+    }
+
     $('#dates').multiDatesPicker({
         addDates: dates,
         numberOfMonths: [3,4],
