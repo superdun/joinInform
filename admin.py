@@ -14,7 +14,7 @@ from dbORM import db, Teachers, Students, Courses, Teacherstages, Role, app
 from flask_security import Security, SQLAlchemyUserDatastore, \
     UserMixin, RoleMixin, login_required, current_user
 from flask_security.utils import encrypt_password
-
+import json
 
 class MyHomeView(AdminIndexView):
 
@@ -76,7 +76,7 @@ class MyAdminBaseView(ModelView):
 def detail_view(self, id):
     item = self.session.query(self.model).get(id)
     if not item:
-        return redirect(url_for('.index'))
+        return redirect(url_for('.index_view'))
     return self.render('admin_view/my_details_template.html', item=item)
 
 
@@ -175,7 +175,7 @@ class CourseView(MyTeacherBaseView):
     def checkin_view(self, id):
         model = self.session.query(self.model).get(id)
         if not model:
-            return redirect(url_for('.index'))
+            return redirect(url_for('.index_view'))
         return self.render('admin_view/my_checkin_template.html', model=model)
 
     @expose('/api/detail/<id>', methods=['GET', ])
@@ -184,7 +184,7 @@ class CourseView(MyTeacherBaseView):
         name = item.name
         id = item.id
         students = []
-        records = item.records
+        records = json.loads(item.records)
         dates = item.dates
         for i in item.student_list:
             if i.alias_names:
@@ -192,8 +192,8 @@ class CourseView(MyTeacherBaseView):
             else:
                 students.append({'id': i.id, 'name': i.chinese_name})
         if not item:
-            return jsonify('false')
-        return jsonify({'id': id, 'name': name, 'records': records, 'dates': dates, 'students': students})
+            return jsonify({'data': 'NO ITEM', 'status': 'false'})
+        return jsonify({'data': {'id': id, 'name': name, 'records': records, 'dates': dates, 'students': students}, 'status': 'OK'})
 
 
 class TeacherstagesView(MyAdminBaseView):
@@ -203,7 +203,7 @@ class TeacherstagesView(MyAdminBaseView):
     def details_view(self, id):
         model = self.session.query(self.model).get(id)
         if not model:
-            return redirect(url_for('.index'))
+            return redirect(url_for('.index_view'))
 
         return self.render('admin_view/my_details_template.html', model=model)
 
