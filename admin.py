@@ -16,6 +16,7 @@ from flask_security import Security, SQLAlchemyUserDatastore, \
 from flask_security.utils import encrypt_password
 import json
 
+
 class MyHomeView(AdminIndexView):
 
     @expose('/')
@@ -73,11 +74,11 @@ class MyAdminBaseView(ModelView):
                 return redirect(url_for('security.login', next=request.url))
 
 
-def detail_view(self, id):
+def detail_view(self, id, source):
     item = self.session.query(self.model).get(id)
     if not item:
         return redirect(url_for('.index_view'))
-    return self.render('admin_view/my_details_template.html', item=item)
+    return self.render('admin_view/%s_details.html' % source, item=item)
 
 
 class MyTeacherBaseView(ModelView):
@@ -95,10 +96,6 @@ class MyTeacherBaseView(ModelView):
         return current_user.has_role('admin')
 
     list_template = 'admin_view/my_list_template.html'
-
-    @expose('/detail/<id>')
-    def details_view(self, id):
-        return detail_view(self, id)
 
     def is_accessible(self):
         if not current_user.is_active or not current_user.is_authenticated:
@@ -141,6 +138,10 @@ class TeacherView(MyTeacherBaseView):
                 'You have no permission to edit other teachers information!')
         # Teachers.password = encrypt_password(form.password.data)
 
+    @expose('/detail/<id>')
+    def details_view(self, id):
+        return detail_view(self, id, source='teacher')
+
 
 class StudentView(MyTeacherBaseView):
 
@@ -153,6 +154,10 @@ class StudentView(MyTeacherBaseView):
             return super(StudentView, self).get_query().filter(Students.id.in_(id_list))
         else:
             return self.session.query(self.model)
+
+    @expose('/detail/<id>')
+    def details_view(self, id):
+        return detail_view(self, id, source='student')
 
 
 class CourseView(MyTeacherBaseView):
@@ -171,15 +176,43 @@ class CourseView(MyTeacherBaseView):
         else:
             return self.session.query(self.model)
 
-    @expose('/checkin/<id>')
+    @expose('/checkin/<id>', methods=['GET', 'POST'])
     def checkin_view(self, id):
-        model = self.session.query(self.model).get(id)
-        if not model:
+        item = self.session.query(self.model).get(id)
+        if not item:
             return redirect(url_for('.index_view'))
-        return self.render('admin_view/my_checkin_template.html', model=model)
+        return self.render('admin_view/checkin.html', item=item)
+
+    @expose('/api/checkin/<id>', methods=['GET', 'POST'])
+    def checkin_view(self, id):
+        presentCourse = self.session.query(self.model).get(id)
+        date = request.form.get('date')
+        attendList = request.form.get('attend_list')
+        totalList = request.form.get('total_list')
+        comment = request.form.get('comment') if request.form.get('comment') else ''
+
+        records = json.loads(presentCourse.records)
+        records[date] = {'students': attendList, 'comment': comment}
+        records = json.dumps(records)
+
+        for i in presentCourse.student_list:
+            print(i.attend_records)
+            print(comment)
+            print '!!!!!!!!!!!'
+            recordsStu = json.loads(i.attend_records)
+            recordsStu[date] = {'courseId': presentCourse.id, 'comment': comment}
+            recordsStu = json.dumps(recordsStu)
+            i.attend_records = recordsStu
+
+        Teachers.query.get(presentCourse.present_teacher_id).total_hours += presentCourse.hours_per_class
+
+        presentCourse.records = records
+
+        db.session.commit()
+        return jsonify({'status': 'OK'})
 
     @expose('/api/detail/<id>', methods=['GET', ])
-    def deta_view(self, id):
+    def course_detail(self, id):
         item = self.session.query(self.model).get(id)
         name = item.name
         id = item.id
@@ -195,17 +228,17 @@ class CourseView(MyTeacherBaseView):
             return jsonify({'data': 'NO ITEM', 'status': 'false'})
         return jsonify({'data': {'id': id, 'name': name, 'records': records, 'dates': dates, 'students': students}, 'status': 'OK'})
 
+    @expose('/detail/<id>')
+    def details_view(self, id):
+        return detail_view(self, id, source='course')
+
 
 class TeacherstagesView(MyAdminBaseView):
     list_template = 'admin_view/my_list_template.html'
 
     @expose('/detail/<id>')
     def details_view(self, id):
-        model = self.session.query(self.model).get(id)
-        if not model:
-            return redirect(url_for('.index_view'))
-
-        return self.render('admin_view/my_details_template.html', model=model)
+        return detail_view(self, id, source='teacherstages')
 
 
 admin.add_view(TeacherView(Teachers, db.session))

@@ -38,14 +38,14 @@ class Students(db.Model):
     present_course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
     course = db.relationship('Courses', backref='student_list')
     former_hours = db.Column(db.Float)
-    present_register_hours = db.Column(db.String(120))
     former_fee = db.Column(db.Float)
     fomer_discount = db.Column(db.Float)
     present_discount = db.Column(db.String(120))
     attend_records = db.Column(db.String(12000))
     comment = db.Column(db.String(12000))
+    account = db.Column(db.String(120))
 
-    def __init__(self, chinese_name='', alias_names='', gender=0, birthday='', grade='', school='', adress='', photo='', former_courses='', create_time='', update_time='', present_course_id=0, former_hours=0.0, present_register_hours=0.0, former_fee='', fomer_discount=0.0, present_discount=0.0, attend_records='', comment=''):
+    def __init__(self, chinese_name='', alias_names='', gender=0, birthday='', grade='', school='', adress='', photo='', former_courses='', create_time='', update_time='', present_course_id=0, former_hours=0.0,  former_fee='', fomer_discount=0.0, present_discount=0.0, attend_records='', comment='', account='0'):
         self.chinese_name = chinese_name
         self.alias_names = alias_names
         self.gender = gender
@@ -59,12 +59,12 @@ class Students(db.Model):
         self.update_time = update_time
         self.present_course_id = present_course_id
         self.former_hours = former_hours
-        self.present_register_hours = present_register_hours
         self.former_fee = former_fee
         self.fomer_discount = fomer_discount
         self.present_discount = present_discount
         self.attend_records = attend_records
         self.comment = comment
+        self.account = account
 
     def __repr__(self):
         if self.chinese_name:
@@ -82,7 +82,6 @@ class Teachers(db.Model, UserMixin):
     history = db.Column(db.String(12000))
     comment = db.Column(db.String(12000))
     photo = db.Column(db.String(120))
-    present_couses = db.Column(db.String(120))
     total_hours = db.Column(db.String(120))
     stage_id = db.Column(db.Integer, db.ForeignKey('teacherstages.id'))
     stage = db.relationship('Teacherstages', backref='teacher_list')
