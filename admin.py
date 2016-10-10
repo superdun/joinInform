@@ -184,21 +184,22 @@ class CourseView(MyTeacherBaseView):
         return self.render('admin_view/checkin.html', item=item)
 
     @expose('/api/checkin/<id>', methods=['GET', 'POST'])
-    def checkin_view(self, id):
+    def checkin_api(self, id):
         presentCourse = self.session.query(self.model).get(id)
         date = request.form.get('date')
-        attendList = request.form.get('attend_list')
+        attendList = request.form.getlist('attend_list')
         totalList = request.form.get('total_list')
         comment = request.form.get('comment') if request.form.get('comment') else ''
-
+        print attendList
+        print totalList
+        print date
+        print '!!!!!!'
         records = json.loads(presentCourse.records)
         records[date] = {'students': attendList, 'comment': comment}
         records = json.dumps(records)
-
+        if  not date:
+            return jsonify({'status': 'failed'})
         for i in presentCourse.student_list:
-            print(i.attend_records)
-            print(comment)
-            print '!!!!!!!!!!!'
             recordsStu = json.loads(i.attend_records)
             recordsStu[date] = {'courseId': presentCourse.id, 'comment': comment}
             recordsStu = json.dumps(recordsStu)

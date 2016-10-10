@@ -43,9 +43,10 @@ class Students(db.Model):
     present_discount = db.Column(db.String(120))
     attend_records = db.Column(db.String(12000))
     comment = db.Column(db.String(12000))
-    account = db.Column(db.String(120))
+    account = db.Column(db.Float)
 
-    def __init__(self, chinese_name='', alias_names='', gender=0, birthday='', grade='', school='', adress='', photo='', former_courses='', create_time='', update_time='', present_course_id=0, former_hours=0.0,  former_fee='', fomer_discount=0.0, present_discount=0.0, attend_records='', comment='', account='0'):
+
+    def __init__(self, chinese_name='', alias_names='', account=0.0,gender=0, birthday='', grade='', school='', adress='', photo='', former_courses='', create_time='', update_time='', present_course_id=0, former_hours=0.0, former_fee='', fomer_discount=0.0, present_discount=0.0, attend_records='', comment=''):
         self.chinese_name = chinese_name
         self.alias_names = alias_names
         self.gender = gender

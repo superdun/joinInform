@@ -120,7 +120,7 @@ $(window).load(function()
                                     .text(attend_num+'人/'+total_num+'人')
                                     $.each(total_list,function(l){
                                         //出席
-                                        if ($.inArray(this.id,l)>=0){
+                                        if ($.inArray(this.id.toString(),l)>=0){
                                             $('#check_list').append("<a href ='/admin/students/detail/"+this.id+"' class='list-group-item list-group-item-success'>"+this.name +'</a>')
                                         }
                                         //未出席
@@ -240,18 +240,20 @@ $(window).load(function()
 
                                     $('#submit').css('display','inline')
                                     $('#submit').click(function(e){
-                                        alert()
                                         url = '/admin/courses/api/checkin/'+id;
                                         var comment = $('#comment').val()
                                         $.ajax({
                                             url:url,
                                             type:'POST',
                                             dataType:'json',
+                                            traditional:true,
                                             data:{'date':date.Format("MM/dd/yyyy"),'attend_list':attend_list,'total_list':total_list,'comment':comment},
                                             success:function(response){
                                                 if(response.status=='OK'){
                                                     $('#submit').css('display','none')
                                                     $('#check_list').html('<h2>success</h2>')
+                                                    alert('success!')
+                                                     location.reload() ;
                                                 }
                                                 else{
                                                     alert('checking-in failed')
@@ -296,7 +298,8 @@ $(window).load(function()
                                     .text(attend_num+'人/'+total_num+'人')
                                     $.each(total_list,function(l){
                                         //出席
-                                        if ($.inArray(this.id,l)>=0){
+
+                                        if ($.inArray(this.id.toString(),l)>=0){
                                             $('#check_list').append("<a href ='/admin/students/detail/"+this.id+"' class='list-group-item list-group-item-success'>"+this.name +'</a>')
                                         }
                                         //未出席
