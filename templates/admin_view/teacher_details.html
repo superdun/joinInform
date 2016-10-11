@@ -1,0 +1,131 @@
+{% extends 'admin_view/index.html' %}
+{% block body %}
+    {{ super() }}
+    <div class="col-md-2"></div>
+    <div class='col-md-8 page-article' >
+        {% if item.chinese_name and not item.alias_names %}
+            <h1 class='article-title'>{{item.chinese_name}} 老师</h1>
+            {% elif  item.chinese_name and  item.alias_names%}
+            <h1 class='article-title'>{{item.chinese_name}} 老师({{item.alias_names}})</h1>
+            {%else%}
+            <h1 class='article-title'>{{item.alias_names}} 老师</h1>
+        {% endif  %}
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">个人信息</h3>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-8 table-responsive">
+                    <table class="table table-striped ">
+                        <tr>
+                            <td>性别：</td>
+                            <td>
+                                {% if item.gender == 0 or not item.gender%}
+                                    未知
+                                    {%elif item == 1 %}
+                                    男
+                                    {%else%}
+                                    女
+                                    {%endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>生日：</td>
+                                <td>{{ item.birthday}}</td>
+                            </tr>
+                            <tr>
+                                <td>学校：</td>
+                                <td>{{ item.school}}</td>
+                            </tr>
+                            <tr>
+                                <td>激活状态：</td>
+                                {%  if item.active ==1 %}
+                                <td><h3><span class="label label-success">已激活</span></h3></td>
+                                {%else%}
+                                <td><h3><span class="label label-default">未激活</span></h3></td>
+                                {%endif%}
+                            </tr>
+                            <tr>
+                                <td>确认状态：</td>
+                                {%  if item.confirm ==1 %}
+                                <td><h3><span class="label label-success">已确认</span></h3></td>
+                                {%else%}
+                                <td><h3><span class="label label-default">未确认</span></h3></td>
+                                {%endif%}
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-4">
+                        <img src="..." class="img-responsive img-circle" alt="{{item.chinese_name}}的照片">
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">课程信息</h3>
+                </div>
+                <div class="panel-body">
+                    {% for i in item.course_list %}
+                        课程名称：
+                        <a href="{{ url_for('courses.details_view', id=i.id )}}">{{i.name}}</a>
+                        <br>
+                        当前进度：
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="{{ i.present_class*100/i.total_class }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ i.present_class*100/i.total_class }}%;">
+                                {% if i.present_class==0 %}
+                                    {% set module='' %}
+                                    {%else%}
+                                    {% set module='当前完成模块：'+i.modules.split(',')[i.present_class-1] %}
+                                {% endif %}
+                                {{module}}
+                            </div>
+                        </div>
+                        <br>
+                        {%endfor%}
+                    </div>
+                </div>
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">账户信息</h3>
+                    </div>
+                    <div class="panel-body">
+                        <p>
+
+                        </p>
+                        <input type="text" id="checkdates_teacher" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2"></div>
+            <input type="text" id = 'id_tmp' hidden="true" value="{{item.id}}">
+            <input type="text" id = 'dates_tmp' hidden="true" value="{{item.dates}}">
+            <input type="text" id = 'records_tmp' hidden="true" value="{{item.records}}">
+            <input type="text" id = 'select_date_tmp' hidden="true">
+            <div class="modal fade" id="myModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">关闭</span>
+                            </button>
+                            <h4 class="modal-title" id="modal-title"></h4>
+                        </div>
+                        <div class="modal-body" id="modal-body">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-success active" role="progressbar" aria-valuenow="100"    aria-valuemin="0" aria-valuemax="100" style="width: 100%;" id= 'check_process'>0人/0人</div>
+                            </div>
+                        </div>
+                        <h4>签到单</h4>
+                    <ul class="list-group" id='check_list'></ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal <--></-->
+{% endblock body %}
