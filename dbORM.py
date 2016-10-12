@@ -44,9 +44,9 @@ class Students(db.Model):
     attend_records = db.Column(db.String(12000))
     comment = db.Column(db.String(12000))
     account = db.Column(db.Float)
+    mobile = db.Column(db.String(120))
 
-
-    def __init__(self, chinese_name='', alias_names='', account=0.0,gender=0, birthday='', grade='', school='', adress='', photo='', former_courses='', create_time='', update_time='', present_course_id=0, former_hours=0.0, former_fee='', fomer_discount=0.0, present_discount=0.0, attend_records='', comment=''):
+    def __init__(self, chinese_name='', alias_names='', account=0.0, gender=0, birthday='', grade='', school='', adress='', photo='', former_courses='', create_time='', update_time='', present_course_id=0, former_hours=0.0, former_fee='', fomer_discount=0.0, present_discount=0.0, attend_records='', comment='', mobile=''):
         self.chinese_name = chinese_name
         self.alias_names = alias_names
         self.gender = gender
@@ -66,6 +66,7 @@ class Students(db.Model):
         self.attend_records = attend_records
         self.comment = comment
         self.account = account
+        self.mobile = mobile
 
     def __repr__(self):
         if self.chinese_name:
@@ -85,7 +86,7 @@ class Teachers(db.Model, UserMixin):
     photo = db.Column(db.String(120))
     total_hours = db.Column(db.String(120))
     stage_id = db.Column(db.Integer, db.ForeignKey('teacherstages.id'))
-    stage = db.relationship('Teacherstages', backref='teacher_list')
+    stage = db.relationship('Teacherstages', backref=db.backref('teacher_list', lazy='dynamic'))
     password = db.Column(db.String(220))
     email = db.Column(db.String(120))
     mobile = db.Column(db.String(120))
@@ -95,6 +96,8 @@ class Teachers(db.Model, UserMixin):
                             backref=db.backref('users', lazy='dynamic'))
     active = db.Column(db.Integer)
     confirm = db.Column(db.Integer)
+    gender = db.Column(db.Integer)
+    birthday = db.Column(db.String(120))
 
     def __repr__(self):
         if self.chinese_name:
@@ -124,7 +127,7 @@ class Courses(db.Model):
     summary = db.Column(db.String(12000))
     former_teachers = db.Column(db.String(12000),)
     present_teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id'))
-    present_teacher = db.relationship('Teachers', backref='course_list')
+    present_teacher = db.relationship('Teachers', backref=db.backref('course_list', lazy='dynamic'))
     create_time = db.Column(db.String(120))
     update_time = db.Column(db.String(120))
     hours_per_class = db.Column(db.Float)
@@ -152,6 +155,7 @@ class Courses(db.Model):
         self.active = active
         self.dates = dates
         self.records = records
+        self.active = active
 
     def __repr__(self):
         return self.name

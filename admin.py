@@ -14,6 +14,7 @@ from dbORM import db, Teachers, Students, Courses, Teacherstages, Role, app
 from flask_security import Security, SQLAlchemyUserDatastore, \
     UserMixin, RoleMixin, login_required, current_user
 from flask_security.utils import encrypt_password
+from flask_marshmallow import Marshmallow
 import json
 
 
@@ -45,7 +46,31 @@ class ValidationError(RuntimeError):
 # Setup Flask-Security
 user_datastore = SQLAlchemyUserDatastore(db, Teachers, Role)
 security = Security(app, user_datastore)
+ma = Marshmallow(app)
 
+
+class TeachersSchema(ma.ModelSchema):
+
+    class Meta:
+        model = Teachers
+
+
+class CoursesSchema(ma.ModelSchema):
+
+    class Meta:
+        model = Courses
+
+
+class StudentsSchema(ma.ModelSchema):
+
+    class Meta:
+        model = Students
+teachers_schema = TeachersSchema(many=True)
+courses_schema = CoursesSchema(many=True)
+students_schema = StudentsSchema(many=True)
+teacher_schema = TeachersSchema()
+course_schema = CoursesSchema()
+student_schema = StudentsSchema()
 
 # Create customized model view class
 
@@ -142,6 +167,13 @@ class TeacherView(MyTeacherBaseView):
     def details_view(self, id):
         return detail_view(self, id, source='teacher')
 
+    @expose('/api/detail/<id>')
+    def details_api(self, id):
+
+        teacher = Teachers.query.get(id)
+        pay = teacher.stage.payment_per_hour
+        return jsonify({'status': 'OK', "teacher": teacher_schema.dump(teacher).data, "courses": courses_schema.dump(teacher.course_list.all()).data, 'pay': pay})
+
 
 class StudentView(MyTeacherBaseView):
 
@@ -190,14 +222,11 @@ class CourseView(MyTeacherBaseView):
         attendList = request.form.getlist('attend_list')
         totalList = request.form.get('total_list')
         comment = request.form.get('comment') if request.form.get('comment') else ''
-        print attendList
-        print totalList
-        print date
-        print '!!!!!!'
+
         records = json.loads(presentCourse.records)
         records[date] = {'students': attendList, 'comment': comment}
         records = json.dumps(records)
-        if  not date:
+        if not date:
             return jsonify({'status': 'failed'})
         for i in presentCourse.student_list:
             recordsStu = json.loads(i.attend_records)

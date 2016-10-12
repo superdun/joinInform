@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/my_flask_admin.css', _external=True) }}" ></link>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/glDatePicker.default.css', _external=True) }}" ></link>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.css', _external=True) }}" ></link>
+<link href="{{ admin_static.url(filename='vendor/bootstrap-daterangepicker/daterangepicker-bs2.css', v='1.3.22') }}" rel="stylesheet">
 
 {% endblock %}
 
@@ -33,5 +34,6 @@
 <script type="text/javascript" src="{{url_for('static', filename='js/glDatePicker.js')}}"></script>
 <script type="text/javascript" src="{{url_for('static', filename='js/jquery-ui-1.11.1.js')}}"></script>
 <script type="text/javascript" src="{{url_for('static', filename='js/jquery-ui.multidatespicker.js')}}"></script>
+<script src="{{ admin_static.url(filename='vendor/bootstrap-daterangepicker/daterangepicker.js', v='1.3.22') }}"></script>
 <script type="text/javascript" src="{{url_for('static', filename='js/user.js')}}"></script>
     {% endblock %}
