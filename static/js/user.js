@@ -349,7 +349,7 @@ $(window).load(function() {
                         $.each(JSON.parse(val.records), function(k, v) {
                             var rec = {'time_range':0,'names':[]}
                             if (toTimeStamp(k) >= startDate && toTimeStamp(k) <= endDate) {
-
+                                
                                 recordsTe[key] += val.hours_per_class
                             }
                         })
