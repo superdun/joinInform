@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50713
 File Encoding         : 65001
 
-Date: 2016-10-10 23:06:46
+Date: 2016-10-13 22:31:06
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -34,7 +34,6 @@ CREATE TABLE `courses` (
   `total_class` int(255) DEFAULT '1',
   `active` int(1) DEFAULT '1',
   `dates` varchar(2550) DEFAULT NULL,
-  `records` varchar(2550) DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `teancher.id` (`present_teacher_id`),
   CONSTRAINT `teancher.id` FOREIGN KEY (`present_teacher_id`) REFERENCES `teachers` (`id`)
@@ -43,8 +42,34 @@ CREATE TABLE `courses` (
 -- ----------------------------
 -- Records of courses
 -- ----------------------------
-INSERT INTO `courses` VALUES ('1', '机器人A', null, 'aa', '12', null, null, '000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000', '000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000', 'm1,m2,m3,m4,m5', '2', '5', '1', '06/15/2016, 09/01/2016, 11/02/2016, 12/06/2016, 12/16/2016', '{\"12/16/2016\": {\"students\": [1], \"comment\": \"\\u6c5f\\u82cf\\u82cf\\u5dde\"}, \"11/02/2016\": {\"students\": [\"1\"], \"comment\": \"\"}}');
-INSERT INTO `courses` VALUES ('2', '机器人B', 'asdad', null, '11', null, null, '000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000', '000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000', 'm1,m2,m3,m4,m5', '1', '5', '1', '06/15/2016, 09/01/2016, 11/02/2016, 12/06/2016, 12/16/2016', '{\"12/16/2016\":{\"students\":[2],\"comment\":\"江苏苏州\"}}');
+INSERT INTO `courses` VALUES ('1', '机器人A', null, 'aa', '12', null, null, '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001.5', '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200.0', 'm1,m2,m3,m4,m5', '2', '5', '1', '06/15/2016, 09/01/2016, 11/02/2016, 12/06/2016, 12/16/2016');
+INSERT INTO `courses` VALUES ('2', '机器人B', 'asdad', null, '11', null, null, '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001.5', '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000300.0', 'm1,m2,m3,m4,m5', '1', '5', '1', '06/15/2016, 09/01/2016, 11/02/2016, 12/06/2016, 12/16/2016');
+
+-- ----------------------------
+-- Table structure for records
+-- ----------------------------
+DROP TABLE IF EXISTS `records`;
+CREATE TABLE `records` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` varchar(255) DEFAULT NULL,
+  `course_id` int(11) DEFAULT NULL,
+  `teacher_id` int(11) DEFAULT NULL,
+  `substitute` tinyint(4) DEFAULT '0',
+  `substitute_id` int(11) DEFAULT NULL,
+  `attend_list` varchar(255) DEFAULT NULL,
+  `comment` varchar(2550) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `courserecord` (`course_id`),
+  KEY `subteacherrecord` (`teacher_id`),
+  CONSTRAINT `courserecord` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`),
+  CONSTRAINT `subteacherrecord` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`),
+  CONSTRAINT `teacherrecord` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of records
+-- ----------------------------
+INSERT INTO `records` VALUES ('1', null, null, null, '0', null, null, null);
 
 -- ----------------------------
 -- Table structure for role
@@ -109,6 +134,7 @@ CREATE TABLE `students` (
   `attend_records` varchar(15000) DEFAULT NULL,
   `comment` varchar(2550) DEFAULT NULL,
   `account` float(45,0) DEFAULT '0',
+  `mobile` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `course.id` (`present_course_id`),
   CONSTRAINT `course.id` FOREIGN KEY (`present_course_id`) REFERENCES `courses` (`id`)
@@ -117,9 +143,9 @@ CREATE TABLE `students` (
 -- ----------------------------
 -- Records of students
 -- ----------------------------
-INSERT INTO `students` VALUES ('1', '学生1', null, null, null, null, null, null, null, null, null, null, '1', null, null, null, null, null, '{\"11/02/2016\": {\"courseId\": 1, \"comment\": \"\"}}', null, '0');
-INSERT INTO `students` VALUES ('2', '学生2', null, null, null, null, null, null, null, null, null, null, '2', null, null, null, null, null, '{}', null, '0');
-INSERT INTO `students` VALUES ('3', null, null, null, null, null, null, null, null, null, null, null, null, '0.0', null, '0.0', '0', '0', '', null, '0');
+INSERT INTO `students` VALUES ('1', '学生1', null, null, null, null, null, null, null, null, null, null, '1', null, null, null, null, null, '{\"11/02/2016\": {\"courseId\": 1, \"comment\": \"\"}}', null, '0', null);
+INSERT INTO `students` VALUES ('2', '学生2', null, null, null, null, null, null, null, null, null, null, '2', null, null, null, null, null, '{}', null, '0', null);
+INSERT INTO `students` VALUES ('3', null, null, null, null, null, null, null, null, null, null, null, null, '0.0', null, '0.0', '0', '0', '', null, '0', null);
 
 -- ----------------------------
 -- Table structure for teachers
@@ -141,6 +167,8 @@ CREATE TABLE `teachers` (
   `school` varchar(255) DEFAULT NULL,
   `active` int(255) DEFAULT '0',
   `confirm` int(1) DEFAULT '0',
+  `gender` int(11) DEFAULT '0',
+  `birthday` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `stage.id` (`stage_id`),
   CONSTRAINT `stage.id` FOREIGN KEY (`stage_id`) REFERENCES `teacherstages` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -149,10 +177,10 @@ CREATE TABLE `teachers` (
 -- ----------------------------
 -- Records of teachers
 -- ----------------------------
-INSERT INTO `teachers` VALUES ('11', '管理员l', 'admin', 'admin', null, '$pbkdf2-sha512$25000$bI2RUgrBOKc0BqD0XiuFEA$1JoSq6IUh9XNJLCcvRA2sqG1cYOxozadi9nnam8Eqsblp0msXBEpQ6AT1PYsG9Ge9cQZ7weqSrS0y0iELBLBlA', null, null, null, '0', '1', null, 'aa', '1', '1');
-INSERT INTO `teachers` VALUES ('12', '老师ld', null, 'teacher1', null, '$pbkdf2-sha512$25000$bI2RUgrBOKc0BqD0XiuFEA$1JoSq6IUh9XNJLCcvRA2sqG1cYOxozadi9nnam8Eqsblp0msXBEpQ6AT1PYsG9Ge9cQZ7weqSrS0y0iELBLBlA', null, null, null, '1.5', '1', null, 'aaa', '1', '1');
-INSERT INTO `teachers` VALUES ('15', null, null, '475098936@qq.com', null, '$pbkdf2-sha512$25000$MUao9Z5TypmT0lqL8R7j3A$3X3Lwrln6fCIAUaJclQXoRRFCycZyVJZZft.TttBFQGFVGSGXBvPe9fbAQZfapNL11.N3pCcuSTA1OvHeB3HmA', null, null, null, '0', null, null, null, '1', '0');
-INSERT INTO `teachers` VALUES ('16', '1231', null, null, null, '$pbkdf2-sha512$25000$K.UcAwAAgBACgFBKCQHA.A$UgRms7rQkUl.rQwXXuG.OYCLUn2sfdGdalGShh5GhNnZHp2z2KUeoofEbXKkgKaScDUT3gDiTYnRRL9/4dxiMg', null, null, null, '0', '1', null, null, null, null);
+INSERT INTO `teachers` VALUES ('11', '管理员l', 'admin', 'admin', null, '$pbkdf2-sha512$25000$bI2RUgrBOKc0BqD0XiuFEA$1JoSq6IUh9XNJLCcvRA2sqG1cYOxozadi9nnam8Eqsblp0msXBEpQ6AT1PYsG9Ge9cQZ7weqSrS0y0iELBLBlA', null, null, null, '0', '1', null, 'aa', '1', '1', '0', null);
+INSERT INTO `teachers` VALUES ('12', '老师ld', null, 'teacher1', null, '$pbkdf2-sha512$25000$bI2RUgrBOKc0BqD0XiuFEA$1JoSq6IUh9XNJLCcvRA2sqG1cYOxozadi9nnam8Eqsblp0msXBEpQ6AT1PYsG9Ge9cQZ7weqSrS0y0iELBLBlA', null, null, null, '1.5', '1', null, 'aaa', '1', '1', '0', null);
+INSERT INTO `teachers` VALUES ('15', null, null, '475098936@qq.com', null, '$pbkdf2-sha512$25000$MUao9Z5TypmT0lqL8R7j3A$3X3Lwrln6fCIAUaJclQXoRRFCycZyVJZZft.TttBFQGFVGSGXBvPe9fbAQZfapNL11.N3pCcuSTA1OvHeB3HmA', null, null, null, '0', null, null, null, '1', '0', '0', null);
+INSERT INTO `teachers` VALUES ('16', '1231', null, null, null, '$pbkdf2-sha512$25000$K.UcAwAAgBACgFBKCQHA.A$UgRms7rQkUl.rQwXXuG.OYCLUn2sfdGdalGShh5GhNnZHp2z2KUeoofEbXKkgKaScDUT3gDiTYnRRL9/4dxiMg', null, null, null, '0', '1', null, null, null, null, '0', null);
 
 -- ----------------------------
 -- Table structure for teacherstages

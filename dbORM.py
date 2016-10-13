@@ -41,12 +41,12 @@ class Students(db.Model):
     former_fee = db.Column(db.Float)
     fomer_discount = db.Column(db.Float)
     present_discount = db.Column(db.String(120))
-    attend_records = db.Column(db.String(12000))
+
     comment = db.Column(db.String(12000))
     account = db.Column(db.Float)
     mobile = db.Column(db.String(120))
 
-    def __init__(self, chinese_name='', alias_names='', account=0.0, gender=0, birthday='', grade='', school='', adress='', photo='', former_courses='', create_time='', update_time='', present_course_id=0, former_hours=0.0, former_fee='', fomer_discount=0.0, present_discount=0.0, attend_records='', comment='', mobile=''):
+    def __init__(self, chinese_name='', alias_names='', account=0.0, gender=0, birthday='', grade='', school='', adress='', photo='', former_courses='', create_time='', update_time='', present_course_id=0, former_hours=0.0, former_fee='', fomer_discount=0.0, present_discount=0.0, comment='', mobile=''):
         self.chinese_name = chinese_name
         self.alias_names = alias_names
         self.gender = gender
@@ -63,7 +63,6 @@ class Students(db.Model):
         self.former_fee = former_fee
         self.fomer_discount = fomer_discount
         self.present_discount = present_discount
-        self.attend_records = attend_records
         self.comment = comment
         self.account = account
         self.mobile = mobile
@@ -86,7 +85,8 @@ class Teachers(db.Model, UserMixin):
     photo = db.Column(db.String(120))
     total_hours = db.Column(db.String(120))
     stage_id = db.Column(db.Integer, db.ForeignKey('teacherstages.id'))
-    stage = db.relationship('Teacherstages', backref=db.backref('teacher_list', lazy='dynamic'))
+    stage = db.relationship('Teacherstages', backref=db.backref(
+        'teacher_list', lazy='dynamic'))
     password = db.Column(db.String(220))
     email = db.Column(db.String(120))
     mobile = db.Column(db.String(120))
@@ -127,7 +127,8 @@ class Courses(db.Model):
     summary = db.Column(db.String(12000))
     former_teachers = db.Column(db.String(12000),)
     present_teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id'))
-    present_teacher = db.relationship('Teachers', backref=db.backref('course_list', lazy='dynamic'))
+    present_teacher = db.relationship(
+        'Teachers', backref=db.backref('course_list', lazy='dynamic'))
     create_time = db.Column(db.String(120))
     update_time = db.Column(db.String(120))
     hours_per_class = db.Column(db.Float)
@@ -136,11 +137,10 @@ class Courses(db.Model):
     present_class = db.Column(db.Integer)
     total_class = db.Column(db.Integer)
     dates = db.Column(db.String(1200))
-    records = db.Column(db.String(1200))
     active = db.Column(db.Integer)
 
     def __init__(self, name='', summary='', former_teachers='', present_teacher_id=0, create_time='', update_time='', hours_per_class='',
-                 fee_per_class=0.0, modules='', present_class=0, total_class=0, active=1, dates='', records=''):
+                 fee_per_class=0.0, modules='', present_class=0, total_class=0, active=1, dates=''):
         self.name = name
         self.summary = summary
         self.former_teachers = former_teachers
@@ -154,11 +154,32 @@ class Courses(db.Model):
         self.total_class = total_class
         self.active = active
         self.dates = dates
-        self.records = records
         self.active = active
 
     def __repr__(self):
         return self.name
+
+
+class Records(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String(120))
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
+    course = db.relationship(
+        'Courses', backref=db.backref('records', lazy='dynamic'))
+    teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id'))
+    teacher = db.relationship(
+        'Teachers', backref=db.backref('records', lazy='dynamic'))
+    substitute = db.Column(db.Integer)
+    comment = db.Column(db.String(12000))
+    attend_list = db.Column(db.String(120))
+
+    def __init__(self, date='', attend_list=[], comment=''):
+        self.date = date
+        self.attend_list = attend_list
+        self.comment = comment
+
+    def __repr__(self):
+        return self.date
 
 
 class Role(db.Model):

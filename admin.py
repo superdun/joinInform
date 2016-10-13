@@ -9,12 +9,13 @@ from flask_admin import helpers as admin_helpers
 from wtforms import TextAreaField
 from wtforms.widgets import TextArea
 
-from dbORM import db, Teachers, Students, Courses, Teacherstages, Role, app
+from dbORM import db, Teachers, Students, Courses, Teacherstages, Role, Records, app
 
 from flask_security import Security, SQLAlchemyUserDatastore, \
     UserMixin, RoleMixin, login_required, current_user
 from flask_security.utils import encrypt_password
 from flask_marshmallow import Marshmallow
+from marshmallow import fields
 import json
 
 
@@ -49,28 +50,55 @@ security = Security(app, user_datastore)
 ma = Marshmallow(app)
 
 
-class TeachersSchema(ma.ModelSchema):
+class StudentsSchema(ma.ModelSchema):
+    course = fields.Nested('CoursesSchema', exclude=('student_list',))
 
     class Meta:
-        model = Teachers
+        model = Students
+
+
+class RecordsSchema(ma.ModelSchema):
+
+    class Meta:
+        model = Records
 
 
 class CoursesSchema(ma.ModelSchema):
+    student_list = fields.Nested(
+        StudentsSchema, many=True, exclude=('course',))
+    records = fields.Nested(RecordsSchema, many=True)
+    present_teacher = fields.Nested(
+        'TeachersSchema', only=('id', 'chinese_name', 'alias_name'))
 
     class Meta:
         model = Courses
 
 
-class StudentsSchema(ma.ModelSchema):
+class TeachersSchema(ma.ModelSchema):
+    course_list = fields.Nested(CoursesSchema, many=True)
+    records = fields.Nested(RecordsSchema, many=True)
+    stage = fields.Nested('TeacherstagesSchema', exclude=('teacher_list'))
 
     class Meta:
-        model = Students
+        model = Teachers
+
+
+class TeacherstagesSchema(ma.ModelSchema):
+    teacher_list = fields.Nested(
+        CoursesSchema, many=True, exclude=('course_list', 'records'))
+
+    class Meta:
+        model = Teacherstages
+
+
 teachers_schema = TeachersSchema(many=True)
 courses_schema = CoursesSchema(many=True)
 students_schema = StudentsSchema(many=True)
+records_schema = RecordsSchema(many=True)
 teacher_schema = TeachersSchema()
 course_schema = CoursesSchema()
 student_schema = StudentsSchema()
+record_schema = RecordsSchema()
 
 # Create customized model view class
 
@@ -97,13 +125,6 @@ class MyAdminBaseView(ModelView):
             else:
                 # login
                 return redirect(url_for('security.login', next=request.url))
-
-
-def detail_view(self, id, source):
-    item = self.session.query(self.model).get(id)
-    if not item:
-        return redirect(url_for('.index_view'))
-    return self.render('admin_view/%s_details.html' % source, item=item)
 
 
 class MyTeacherBaseView(ModelView):
@@ -154,7 +175,7 @@ class TeacherView(MyTeacherBaseView):
         if current_user.is_authenticated and current_user.has_role('teacher'):
             return super(TeacherView, self).get_query().filter(Teachers.id == current_user.id)
         else:
-            return self.session.query(self.model)
+            return self.session.query(self.model)  # admin
 
     def on_model_change(self, form, Teachers, is_created):
 
@@ -208,11 +229,19 @@ class CourseView(MyTeacherBaseView):
         else:
             return self.session.query(self.model)
 
+    @expose('/detail/<id>')
+    def details_view(self, id):
+        course = Courses.query.get(id)
+
+        item = jsonify(course_schema.dump(course).data)
+        return self.render('admin_view/course_details.html', item=course_schema.dump(course).data)
+
     @expose('/checkin/<id>', methods=['GET', 'POST'])
     def checkin_view(self, id):
         item = self.session.query(self.model).get(id)
         if not item:
             return redirect(url_for('.index_view'))
+        
         return self.render('admin_view/checkin.html', item=item)
 
     @expose('/api/checkin/<id>', methods=['GET', 'POST'])
@@ -221,22 +250,21 @@ class CourseView(MyTeacherBaseView):
         date = request.form.get('date')
         attendList = request.form.getlist('attend_list')
         totalList = request.form.get('total_list')
-        comment = request.form.get('comment') if request.form.get('comment') else ''
-
-        records = json.loads(presentCourse.records)
-        records[date] = {'students': attendList, 'comment': comment}
-        records = json.dumps(records)
+        comment = request.form.get(
+            'comment') if request.form.get('comment') else ''
+        substitute = request.form.get('substitute')
+        subTeacher_id = request.form.get('subTeacherId')
         if not date:
             return jsonify({'status': 'failed'})
-        for i in presentCourse.student_list:
-            recordsStu = json.loads(i.attend_records)
-            recordsStu[date] = {'courseId': presentCourse.id, 'comment': comment}
-            recordsStu = json.dumps(recordsStu)
-            i.attend_records = recordsStu
-
-        Teachers.query.get(presentCourse.present_teacher_id).total_hours += presentCourse.hours_per_class
-
-        presentCourse.records = records
+        record = Records('date', date)
+        record.course_id = id
+        if substitute == 1 and subTeacher_id:
+            record.teacher_id = subTeacher_id
+        else:
+            record.teacher_id = presentCourse.present_teacher_id
+        record.comment = comment
+        Teachers.query.get(
+            presentCourse.present_teacher_id).total_hours += presentCourse.hours_per_class
 
         db.session.commit()
         return jsonify({'status': 'OK'})
@@ -257,10 +285,6 @@ class CourseView(MyTeacherBaseView):
         if not item:
             return jsonify({'data': 'NO ITEM', 'status': 'false'})
         return jsonify({'data': {'id': id, 'name': name, 'records': records, 'dates': dates, 'students': students}, 'status': 'OK'})
-
-    @expose('/detail/<id>')
-    def details_view(self, id):
-        return detail_view(self, id, source='course')
 
 
 class TeacherstagesView(MyAdminBaseView):
