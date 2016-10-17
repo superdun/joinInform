@@ -104,6 +104,7 @@
     var dates= {{ item.dates|tojson }}
     var records = {{item.records|tojson }}
     var id = {{item.id|tojson }}*1
+    
     if ($('#checkdates')){
         var  specialDates = [];
         var  recordedDates = [];
@@ -179,7 +180,7 @@
                                         }
                                         //未出席
                                         else{
-                                            $('#check_list').append("<a href ='{{url_for('students.details_view', id=item.id)}}' class='list-group-item list-group-item-danger'>"+this.name +'</a>')
+                                            $('#check_list').append("<a href ='/admin/students/detail/"+this.id+"' class='list-group-item list-group-item-danger'>"+this.name +'</a>')
 
                                         }
                                     },[attend_list])

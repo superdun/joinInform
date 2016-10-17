@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50713
 File Encoding         : 65001
 
-Date: 2016-10-13 22:31:06
+Date: 2016-10-17 22:42:29
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -54,22 +54,24 @@ CREATE TABLE `records` (
   `date` varchar(255) DEFAULT NULL,
   `course_id` int(11) DEFAULT NULL,
   `teacher_id` int(11) DEFAULT NULL,
-  `substitute` tinyint(4) DEFAULT '0',
   `substitute_id` int(11) DEFAULT NULL,
   `attend_list` varchar(255) DEFAULT NULL,
   `comment` varchar(2550) DEFAULT NULL,
+  `assistant_id` int(11) DEFAULT NULL,
+  `substitute` int(255) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `courserecord` (`course_id`),
-  KEY `subteacherrecord` (`teacher_id`),
-  CONSTRAINT `courserecord` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`),
-  CONSTRAINT `subteacherrecord` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`),
-  CONSTRAINT `teacherrecord` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+  KEY `subteacherrecord` (`teacher_id`) USING BTREE,
+  KEY `teacherrecords` (`substitute_id`),
+  KEY `assrecords` (`assistant_id`),
+  CONSTRAINT `acherrecord` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`),
+  CONSTRAINT `courserecord` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of records
 -- ----------------------------
-INSERT INTO `records` VALUES ('1', null, null, null, '0', null, null, null);
+INSERT INTO `records` VALUES ('6', '1478016000', '1', '12', null, '', '', null, '0');
 
 -- ----------------------------
 -- Table structure for role
@@ -178,7 +180,7 @@ CREATE TABLE `teachers` (
 -- Records of teachers
 -- ----------------------------
 INSERT INTO `teachers` VALUES ('11', '管理员l', 'admin', 'admin', null, '$pbkdf2-sha512$25000$bI2RUgrBOKc0BqD0XiuFEA$1JoSq6IUh9XNJLCcvRA2sqG1cYOxozadi9nnam8Eqsblp0msXBEpQ6AT1PYsG9Ge9cQZ7weqSrS0y0iELBLBlA', null, null, null, '0', '1', null, 'aa', '1', '1', '0', null);
-INSERT INTO `teachers` VALUES ('12', '老师ld', null, 'teacher1', null, '$pbkdf2-sha512$25000$bI2RUgrBOKc0BqD0XiuFEA$1JoSq6IUh9XNJLCcvRA2sqG1cYOxozadi9nnam8Eqsblp0msXBEpQ6AT1PYsG9Ge9cQZ7weqSrS0y0iELBLBlA', null, null, null, '1.5', '1', null, 'aaa', '1', '1', '0', null);
+INSERT INTO `teachers` VALUES ('12', '老师ld', null, 'teacher1', null, '$pbkdf2-sha512$25000$bI2RUgrBOKc0BqD0XiuFEA$1JoSq6IUh9XNJLCcvRA2sqG1cYOxozadi9nnam8Eqsblp0msXBEpQ6AT1PYsG9Ge9cQZ7weqSrS0y0iELBLBlA', null, null, null, '7.5', '1', null, 'aaa', '1', '1', '0', null);
 INSERT INTO `teachers` VALUES ('15', null, null, '475098936@qq.com', null, '$pbkdf2-sha512$25000$MUao9Z5TypmT0lqL8R7j3A$3X3Lwrln6fCIAUaJclQXoRRFCycZyVJZZft.TttBFQGFVGSGXBvPe9fbAQZfapNL11.N3pCcuSTA1OvHeB3HmA', null, null, null, '0', null, null, null, '1', '0', '0', null);
 INSERT INTO `teachers` VALUES ('16', '1231', null, null, null, '$pbkdf2-sha512$25000$K.UcAwAAgBACgFBKCQHA.A$UgRms7rQkUl.rQwXXuG.OYCLUn2sfdGdalGShh5GhNnZHp2z2KUeoofEbXKkgKaScDUT3gDiTYnRRL9/4dxiMg', null, null, null, '0', '1', null, null, null, null, '0', null);
 

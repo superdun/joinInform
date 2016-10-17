@@ -170,13 +170,18 @@ class Records(db.Model):
     teacher = db.relationship(
         'Teachers', backref=db.backref('records', lazy='dynamic'))
     substitute = db.Column(db.Integer)
+    substitute_id = db.Column(db.Integer)
     comment = db.Column(db.String(12000))
     attend_list = db.Column(db.String(120))
+    assistant_id = db.Column(db.Integer)
 
-    def __init__(self, date='', attend_list=[], comment=''):
+    def __init__(self, date='', attend_list='', comment='', substitute_id=None, assistant_id=None,substitute=0):
         self.date = date
         self.attend_list = attend_list
         self.comment = comment
+        self.substitute_id = substitute_id
+        self.assistant_id = assistant_id
+        self.substitute =substitute
 
     def __repr__(self):
         return self.date

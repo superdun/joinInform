@@ -17,6 +17,7 @@ from flask_security.utils import encrypt_password
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
 import json
+import time
 
 
 class MyHomeView(AdminIndexView):
@@ -232,50 +233,57 @@ class CourseView(MyTeacherBaseView):
     @expose('/detail/<id>')
     def details_view(self, id):
         course = Courses.query.get(id)
+        if not course:
+            return redirect(url_for('.index_view'))
 
         item = jsonify(course_schema.dump(course).data)
         return self.render('admin_view/course_details.html', item=course_schema.dump(course).data)
 
     @expose('/checkin/<id>', methods=['GET', 'POST'])
     def checkin_view(self, id):
-        item = self.session.query(self.model).get(id)
-        if not item:
+        course = Courses.query.get(id)
+        if not course:
             return redirect(url_for('.index_view'))
-        
-        return self.render('admin_view/checkin.html', item=item)
+        item = jsonify(course_schema.dump(course).data)
+        return self.render('admin_view/checkin.html', item=course_schema.dump(course).data)
 
     @expose('/api/checkin/<id>', methods=['GET', 'POST'])
     def checkin_api(self, id):
-        presentCourse = self.session.query(self.model).get(id)
+        presentCourse = Courses.query.get(id)
         date = request.form.get('date')
+        date = str(int(time.mktime(time.strptime(date, '%m/%d/%Y'))))
         attendList = request.form.getlist('attend_list')
-        totalList = request.form.get('total_list')
+
         comment = request.form.get(
             'comment') if request.form.get('comment') else ''
         substitute = request.form.get('substitute')
-        subTeacher_id = request.form.get('subTeacherId')
+        if substitute == 1:
+            subTeacher_id = request.form.get('subTeacherId')
+
         if not date:
             return jsonify({'status': 'failed'})
-        record = Records('date', date)
+        record = Records()
+        print type(date)
+        record.date=date
         record.course_id = id
         if substitute == 1 and subTeacher_id:
-            record.teacher_id = subTeacher_id
-        else:
-            record.teacher_id = presentCourse.present_teacher_id
+            record.substitute_id = subTeacher_id
+        record.teacher_id = presentCourse.present_teacher_id
         record.comment = comment
+        # record.attend_list = attendList
         Teachers.query.get(
             presentCourse.present_teacher_id).total_hours += presentCourse.hours_per_class
-
+        db.session.add(record)
         db.session.commit()
         return jsonify({'status': 'OK'})
 
     @expose('/api/detail/<id>', methods=['GET', ])
     def course_detail(self, id):
-        item = self.session.query(self.model).get(id)
+        item = Courses.query.get(id)
         name = item.name
         id = item.id
         students = []
-        records = json.loads(item.records)
+        records = course_schema.dump(item.records).data
         dates = item.dates
         for i in item.student_list:
             if i.alias_names:
