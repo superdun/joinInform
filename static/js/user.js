@@ -1,5 +1,4 @@
-$(window).load(function()
-{   
+
     // 对Date的扩展，将 Date 转化为指定格式的String   
     // 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，   
     // 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)   
@@ -27,41 +26,46 @@ $(window).load(function()
 
     var toTimeStamp = function(dateStr){
         var date = new Date(dateStr);
-        return date.getTime();
+        return date.getTime()/1000;
+    }
+    var recordsByDate=function(records){
+        var recordsBydate={}
+        $.each(records,function(key,val){
+            recordsBydate[val['date']]=val
+        })
+        return recordsBydate
     }
 
 
-
-    $('#dates').multiDatesPicker({
-        addDates: dates,
-        numberOfMonths: [3,4],
-        defaultDate: '1/1/'+y
-    }) ; 
-
+    // $('#dates').multiDatesPicker({
+    //     addDates: dates,
+    //     numberOfMonths: [3,4],
+    //     defaultDate: '1/1/'+y
+    // }) ; 
 
 
 
-    //老师总结日历
-    $('#checkdates_teacher').daterangepicker({
-        locale: {
-            format: 'MM/DD/YYYY'
-        }
-    }) ; 
-     $('#checkdates_teacher').on('apply.daterangepicker',function(e,picker){
-        var startDate = toTimeStamp(picker.startDate)
-        var endDate = toTimeStamp(picker.endDate)
-        var url = '/admin/teachers/detail/api/'+id
-        $.ajax({
-            url:url,
-            type:'GET',
-            dataType:'json',
-            success:function(response){
-                if (response.status ==='OK'){
-                    alert()
-                }
-            }
-        })
-     }) ; 
+
+    // //老师总结日历
+    // $('#checkdates_teacher').daterangepicker({
+    //     locale: {
+    //         format: 'MM/DD/YYYY'
+    //     }
+    // }) ; 
+    //  $('#checkdates_teacher').on('apply.daterangepicker',function(e,picker){
+    //     var startDate = toTimeStamp(picker.startDate)
+    //     var endDate = toTimeStamp(picker.endDate)
+    //     var url = '/admin/teachers/detail/api/'+id
+    //     $.ajax({
+    //         url:url,
+    //         type:'GET',
+    //         dataType:'json',
+    //         success:function(response){
+    //             if (response.status ==='OK'){
+    //                 alert()
+    //             }
+    //         }
+    //     })
+    //  }) ; 
 
     
-});

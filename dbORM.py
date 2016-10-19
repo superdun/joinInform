@@ -25,7 +25,7 @@ role_teacher = db.Table(
 class Students(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     chinese_name = db.Column(db.String(80))
-    alias_names = db.Column(db.String(80))
+    alias_name = db.Column(db.String(80))
     gender = db.Column(db.Integer)
     birthday = db.Column(db.String(120))
     grade = db.Column(db.String(120))
@@ -46,9 +46,9 @@ class Students(db.Model):
     account = db.Column(db.Float)
     mobile = db.Column(db.String(120))
 
-    def __init__(self, chinese_name='', alias_names='', account=0.0, gender=0, birthday='', grade='', school='', adress='', photo='', former_courses='', create_time='', update_time='', present_course_id=0, former_hours=0.0, former_fee='', fomer_discount=0.0, present_discount=0.0, comment='', mobile=''):
+    def __init__(self, chinese_name='', alias_name='', account=0.0, gender=0, birthday='', grade='', school='', adress='', photo='', former_courses='', create_time='', update_time='', present_course_id=0, former_hours=0.0, former_fee='', fomer_discount=0.0, present_discount=0.0, comment='', mobile=''):
         self.chinese_name = chinese_name
-        self.alias_names = alias_names
+        self.alias_name = alias_names
         self.gender = gender
         self.birthday = birthday
         self.grade = grade
@@ -175,13 +175,13 @@ class Records(db.Model):
     attend_list = db.Column(db.String(120))
     assistant_id = db.Column(db.Integer)
 
-    def __init__(self, date='', attend_list='', comment='', substitute_id=None, assistant_id=None,substitute=0):
+    def __init__(self, date='', attend_list='', comment='', substitute_id=None, assistant_id=None, substitute=0):
         self.date = date
         self.attend_list = attend_list
         self.comment = comment
         self.substitute_id = substitute_id
         self.assistant_id = assistant_id
-        self.substitute =substitute
+        self.substitute = substitute
 
     def __repr__(self):
         return self.date

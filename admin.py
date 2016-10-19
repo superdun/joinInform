@@ -104,6 +104,26 @@ record_schema = RecordsSchema()
 # Create customized model view class
 
 
+def selectName(student_list):
+    for i in student_list:
+        if i['chinese_name'] and i['alias_name']:
+            i['name'] = '%s/%s' % (i['chinese_name'], i['alias_name'])
+        elif i['chinese_name']:
+            i['name'] = i['chinese_name']
+        else:
+            i['name'] = i['alias_name']
+    return student_list
+
+
+def recordsByDate(records):
+    newRecords = {}
+    for i in records:
+        date = time.strftime("%m/%d/%Y", time.localtime(float(i['date'])))
+        i['attend_list'] = i['attend_list'].split(',')
+        newRecords[date] = i
+    return newRecords
+
+
 class MyAdminBaseView(ModelView):
 
     def is_accessible(self):
@@ -244,8 +264,11 @@ class CourseView(MyTeacherBaseView):
         course = Courses.query.get(id)
         if not course:
             return redirect(url_for('.index_view'))
-        item = jsonify(course_schema.dump(course).data)
-        return self.render('admin_view/checkin.html', item=course_schema.dump(course).data)
+        item = course_schema.dump(course).data
+        item['records'] = recordsByDate(item['records'])
+        item['student_list'] = selectName(item['student_list'])
+
+        return self.render('admin_view/checkin.html', item=item)
 
     @expose('/api/checkin/<id>', methods=['GET', 'POST'])
     def checkin_api(self, id):
@@ -264,12 +287,13 @@ class CourseView(MyTeacherBaseView):
             return jsonify({'status': 'failed'})
         record = Records()
         print type(date)
-        record.date=date
+        record.date = date
         record.course_id = id
         if substitute == 1 and subTeacher_id:
             record.substitute_id = subTeacher_id
         record.teacher_id = presentCourse.present_teacher_id
         record.comment = comment
+        record.attend_list = ','.join(attendList)
         # record.attend_list = attendList
         Teachers.query.get(
             presentCourse.present_teacher_id).total_hours += presentCourse.hours_per_class
@@ -280,19 +304,12 @@ class CourseView(MyTeacherBaseView):
     @expose('/api/detail/<id>', methods=['GET', ])
     def course_detail(self, id):
         item = Courses.query.get(id)
-        name = item.name
-        id = item.id
-        students = []
-        records = course_schema.dump(item.records).data
-        dates = item.dates
-        for i in item.student_list:
-            if i.alias_names:
-                students.append({'id': i.id, 'name': i.alias_names})
-            else:
-                students.append({'id': i.id, 'name': i.chinese_name})
+        data = course_schema.dump(item).data
         if not item:
             return jsonify({'data': 'NO ITEM', 'status': 'false'})
-        return jsonify({'data': {'id': id, 'name': name, 'records': records, 'dates': dates, 'students': students}, 'status': 'OK'})
+        data['records'] = recordsByDate(data['records'])
+        data['student_list'] = selectName(data['student_list'])
+        return jsonify({'data': data, 'status': 'OK'})
 
 
 class TeacherstagesView(MyAdminBaseView):
