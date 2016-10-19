@@ -155,7 +155,7 @@
                                     var inform = response.data
                                     var attend_list = []
                                     var attend_num = 0
-                                    var total_list = inform.students
+                                    var total_list = inform.student_list
                                     var total_num = total_list.length
                                     $.each(total_list,function(){
                                         $('#check_list').append("<li class='list-group-item list-group-item-danger student-status' status='not-checkin' student_id='"+this.id+"'>"+this.name +'</a>')                             
@@ -230,11 +230,11 @@
                             success:function(response){
                                 if (response.status ==='OK'){
                                     var inform = response.data
-                                    var attend_list = inform.records[date.Format("MM/dd/yyyy")].students
+                                    var attend_list = inform.records[date.Format("MM/dd/yyyy")].attend_list
                                     var attend_num = attend_list.length
-                                    var total_list = inform.students
+                                    var total_list = inform.student_list
                                     var total_num = total_list.length
-
+                                    console.log(inform.records[date.Format("MM/dd/yyyy")])
                                     $("#modal-title").text(data.select_date+'   '+inform.name+' 班登记详情')
                                     $('#comment').val(inform.records[date.Format("MM/dd/yyyy")].comment).attr('disabled','disabled');
     
@@ -243,7 +243,6 @@
                                     .text(attend_num+'人/'+total_num+'人')
                                     $.each(total_list,function(l){
                                         //出席
-
                                         if ($.inArray(this.id.toString(),l)>=0){
                                             $('#check_list').append("<a href ='/admin/students/detail/"+this.id+"' class='list-group-item list-group-item-success'>"+this.name +'</a>')
                                         }

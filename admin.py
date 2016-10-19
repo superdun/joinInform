@@ -100,6 +100,7 @@ teacher_schema = TeachersSchema()
 course_schema = CoursesSchema()
 student_schema = StudentsSchema()
 record_schema = RecordsSchema()
+teacherstage_schema = TeacherstagesSchema()
 
 # Create customized model view class
 
@@ -207,7 +208,8 @@ class TeacherView(MyTeacherBaseView):
 
     @expose('/detail/<id>')
     def details_view(self, id):
-        return detail_view(self, id, source='teacher')
+        teacher = Teachers.query.get(id)
+        return self.render('admin_view/teacher_details.html', item=teacher_schema.dump(teacher).data)
 
     @expose('/api/detail/<id>')
     def details_api(self, id):
@@ -231,7 +233,10 @@ class StudentView(MyTeacherBaseView):
 
     @expose('/detail/<id>')
     def details_view(self, id):
-        return detail_view(self, id, source='student')
+        student = Students.query.get(id)
+        print (student_schema.dump(student).data)
+
+        return self.render('admin_view/student_details.html', item=student_schema.dump(student).data)
 
 
 class CourseView(MyTeacherBaseView):
@@ -255,8 +260,6 @@ class CourseView(MyTeacherBaseView):
         course = Courses.query.get(id)
         if not course:
             return redirect(url_for('.index_view'))
-
-        item = jsonify(course_schema.dump(course).data)
         return self.render('admin_view/course_details.html', item=course_schema.dump(course).data)
 
     @expose('/checkin/<id>', methods=['GET', 'POST'])
@@ -317,7 +320,8 @@ class TeacherstagesView(MyAdminBaseView):
 
     @expose('/detail/<id>')
     def details_view(self, id):
-        return detail_view(self, id, source='teacherstages')
+        teacherstage = Teacherstages.query.get(id)
+        return self.render('admin_view/teacherstage_details.html', item=teacherstage_schema.dump(teacherstage).data)
 
 
 admin.add_view(TeacherView(Teachers, db.session))
