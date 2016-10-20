@@ -221,6 +221,7 @@ class TeacherView(MyTeacherBaseView):
         endDate = str(int(time.mktime(time.strptime(request.query_string.split('%20-%20')[1], '%m/%d/%Y'))))
 
         records = Records.query.filter(Records.date > startDate, Records.date < endDate).all()
+        records_schema.json.dump().data
 
         return jsonify({'status': 'OK', "teacher": teacher_schema.dump(teacher).data, "courses": courses_schema.dump(teacher.course_list.all()).data, 'pay': pay})
 
