@@ -46,26 +46,6 @@
 
 
 
-    // //老师总结日历
-    // $('#checkdates_teacher').daterangepicker({
-    //     locale: {
-    //         format: 'MM/DD/YYYY'
-    //     }
-    // }) ; 
-    //  $('#checkdates_teacher').on('apply.daterangepicker',function(e,picker){
-    //     var startDate = toTimeStamp(picker.startDate)
-    //     var endDate = toTimeStamp(picker.endDate)
-    //     var url = '/admin/teachers/detail/api/'+id
-    //     $.ajax({
-    //         url:url,
-    //         type:'GET',
-    //         dataType:'json',
-    //         success:function(response){
-    //             if (response.status ==='OK'){
-    //                 alert()
-    //             }
-    //         }
-    //     })
-    //  }) ; 
+ 
 
     

@@ -216,6 +216,12 @@ class TeacherView(MyTeacherBaseView):
 
         teacher = Teachers.query.get(id)
         pay = teacher.stage.payment_per_hour
+
+        startDate = str(int(time.mktime(time.strptime(request.query_string.split('%20-%20')[0], '%m/%d/%Y'))))
+        endDate = str(int(time.mktime(time.strptime(request.query_string.split('%20-%20')[1], '%m/%d/%Y'))))
+
+        records = Records.query.filter(Records.date > startDate, Records.date < endDate).all()
+
         return jsonify({'status': 'OK', "teacher": teacher_schema.dump(teacher).data, "courses": courses_schema.dump(teacher.course_list.all()).data, 'pay': pay})
 
 
@@ -234,7 +240,7 @@ class StudentView(MyTeacherBaseView):
     @expose('/detail/<id>')
     def details_view(self, id):
         student = Students.query.get(id)
-        print (student_schema.dump(student).data)
+        print(student_schema.dump(student).data)
 
         return self.render('admin_view/student_details.html', item=student_schema.dump(student).data)
 
@@ -277,6 +283,10 @@ class CourseView(MyTeacherBaseView):
     def checkin_api(self, id):
         presentCourse = Courses.query.get(id)
         date = request.form.get('date')
+
+        presentCourse.present_class = presentCourse.dates.split(', ').index(date) + 1 if presentCourse.dates.index(date) + \
+            1 > presentCourse.present_class else resentCourse.present_class
+
         date = str(int(time.mktime(time.strptime(date, '%m/%d/%Y'))))
         attendList = request.form.getlist('attend_list')
 

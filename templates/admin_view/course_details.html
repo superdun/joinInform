@@ -102,7 +102,7 @@
     var y = today.getFullYear();
     var dates= {{ item.dates|tojson }}
     var records = {{item.records|tojson }}
-    var id = {{item.id|tojson }}*1
+    var id = {{item.id}}*1
 
     if ($('#checkdates')){
         var  specialDates = [];

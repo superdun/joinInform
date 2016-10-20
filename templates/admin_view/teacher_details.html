@@ -131,3 +131,35 @@
     </div>
     <!-- /.modal <--></-->
 {% endblock body %}
+{% block tail %}
+{{super()}}
+<script type="text/javascript">
+    var today = new Date();
+
+    var y = today.getFullYear();
+
+    var id = {{item.id}}*1
+        //老师总结日历
+    $('#checkdates_teacher').daterangepicker({
+        locale: {
+            format: 'MM/DD/YYYY'
+        }
+    }) ; 
+     $('#checkdates_teacher').on('apply.daterangepicker',function(e,picker){
+        var startDate = toTimeStamp(picker.startDate)
+        var endDate = toTimeStamp(picker.endDate)
+        var url = '/admin/teachers/api/detail/'+id
+        $.ajax({
+            url:url,
+            type:'GET',
+            dataType:'json',
+            data:$('#checkdates_teacher').val(),
+            success:function(response){
+                if (response.status ==='OK'){
+                    alert()
+                }
+            }
+        })
+     }) ;
+</script>
+{% endblock %}
