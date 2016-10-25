@@ -67,6 +67,24 @@
                 <h4 class="modal-title" id="modal-title"></h4>
             </div>
             <div class="modal-body" id="modal-body">
+                <div>
+                    <h4>代课情况:</h4>
+                    <input type="checkbox" id="issub" checked />
+
+                    <lable>代课老师：</lable>
+                    <select class="js-example-basic-single" id ='subteacher'></select>
+
+                </div>
+                <div>
+                    <h4>助教情况:</h4>
+                    <input type="checkbox" id="isas" checked />
+
+                    <lable>助教老师：</lable>
+                    <select class="js-example-basic-single" id ='asteacher'></select>
+
+                </div>
+                <br>
+                <h4>签到情况</h4>
                 <div class="progress">
                     <div class="progress-bar progress-bar-striped progress-bar-success active" role="progressbar" aria-valuenow="100"    aria-valuemin="0" aria-valuemax="100" style="width: 100%;" id= 'check_process'>0人/0人</div>
                 </div>
@@ -153,10 +171,12 @@
                             success:function(response){
                                 if (response.status ==='OK'){
                                     var inform = response.data
+                                    var teachers = response.teacherListAll;
                                     var attend_list = []
                                     var attend_num = 0
                                     var total_list = inform.student_list
                                     var total_num = total_list.length
+                                    assistantAndSub(false,teachers);
                                     $.each(total_list,function(){
                                         $('#check_list').append("<li class='list-group-item list-group-item-danger student-status' status='not-checkin' student_id='"+this.id+"'>"+this.name +'</a>')                             
                                     })
@@ -178,7 +198,7 @@
 
                                     })
 
-                                    $("#modal-title").text(data.select_date+'   '+inform.name+' 班登记表')
+                                    $("#modal-title").text(date.Format("MM/dd/yyyy")+'   '+inform.name+' 班登记表')
                                     $('#check_process').attr('aria-valuenow',attend_num*100/total_num)
                                     .css('width',attend_num*100/total_num+'%')
                                     .text(attend_num+'人/'+total_num+'人')
@@ -187,12 +207,17 @@
                                     $('#submit').click(function(e){
                                         url = '/admin/courses/api/checkin/'+id;
                                         var comment = $('#comment').val()
+                                        var sub = $("#issub").bootstrapSwitch('state')
+                                        var subId = $('#subteacher').val()
+                                        var as = $("#isas").bootstrapSwitch('state')
+                                        var asId =  $('#asteacher').val()
+                                        
                                         $.ajax({
                                             url:url,
                                             type:'POST',
                                             dataType:'json',
                                             traditional:true,
-                                            data:{'date':date.Format("MM/dd/yyyy"),'attend_list':attend_list,'total_list':total_list,'comment':comment},
+                                            data:{'date':date.Format("MM/dd/yyyy"),'attend_list':attend_list,'total_list':total_list,'comment':comment,'sub':sub,'subId':subId,'as':as,'asId':asId},
                                             success:function(response){
                                                 if(response.status=='OK'){
                                                     $('#submit').css('display','none')
@@ -216,6 +241,7 @@
                     $('#myModal').modal()
                     $('#myModal').on('hidden.bs.modal', function (e) {
                         $('#check_list').html('')
+                        $('#comment').val('')
                         $('#submit').css('display','none')
                     })
                 }
@@ -230,13 +256,16 @@
                             success:function(response){
                                 if (response.status ==='OK'){
                                     var inform = response.data
-                                    var attend_list = inform.records[date.Format("MM/dd/yyyy")].attend_list
+                                    var record = inform.records[date.Format("MM/dd/yyyy")];
+                                    var teachers = response.teacherListAll;                                    
+                                    var attend_list = record.attend_list
                                     var attend_num = attend_list.length
                                     var total_list = inform.student_list
                                     var total_num = total_list.length
-                                    console.log(inform.records[date.Format("MM/dd/yyyy")])
-                                    $("#modal-title").text(data.select_date+'   '+inform.name+' 班登记详情')
-                                    $('#comment').val(inform.records[date.Format("MM/dd/yyyy")].comment).attr('disabled','disabled');
+                                    assistantAndSub(record,teachers);
+ 
+                                    $("#modal-title").text(date.Format("MM/dd/yyyy")+'   '+inform.name+' 班登记详情')
+                                    $('#comment').val(record.comment).attr('disabled','disabled');
     
                                     $('#check_process').attr('aria-valuenow',attend_num*100/total_num)
                                     .css('width',attend_num*100/total_num+'%')
@@ -264,7 +293,7 @@
                         $('#myModal').modal()
                         $('#myModal').on('hidden.bs.modal', function (e) {
                             $('#check_list').html('')
-
+                            $('#comment').val('')
                         })
 
                     }

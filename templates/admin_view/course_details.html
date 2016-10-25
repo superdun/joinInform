@@ -26,6 +26,12 @@
             每堂课时间：{{item.hours_per_class}}  小时;
             <br/>
             每堂课费用：{{item.fee_per_class}}  元
+            <br/>
+            课程性质：{% if item.type == 'out '%}
+            外派
+            {%else%}
+            本部
+            {%endif%}
         </div>
     </div>
 
@@ -77,9 +83,29 @@
                 <h4 class="modal-title" id="modal-title"></h4>
             </div>
             <div class="modal-body" id="modal-body">
+                <div>
+                    <h4>代课情况:</h4>
+                    <input type="checkbox" id="issub" checked />
+
+                    <lable>代课老师：</lable>
+                    <select class="js-example-basic-single" id ='subteacher'></select>
+
+                </div>
+                <div>
+                    <h4>助教情况:</h4>
+                    <input type="checkbox" id="isas" checked />
+
+                    <lable>助教老师：</lable>
+                    <select class="js-example-basic-single" id ='asteacher'></select>
+
+                </div>
+                <br>
+                <h4>签到情况</h4>
                 <div class="progress">
+
                     <div class="progress-bar progress-bar-striped progress-bar-success active" role="progressbar" aria-valuenow="100"    aria-valuemin="0" aria-valuemax="100" style="width: 100%;" id= 'check_process'>0人/0人</div>
                 </div>
+
                 <h4>签到单</h4>
                 <ul class="list-group" id='check_list'></ul>
             </div>
@@ -97,6 +123,7 @@
 {% block tail %}
 {{super()}}
 <script type="text/javascript">
+
     var today = new Date();
 
     var y = today.getFullYear();
@@ -165,14 +192,15 @@
                             // async:false
                             success:function(response){
                                 if (response.status ==='OK'){
-                                    var inform = response.data
-                                    
-                                    var attend_list = inform.records[date.Format("MM/dd/yyyy")].attend_list
-                                    var attend_num = attend_list.length
-                                    var total_list = inform.student_list
-                                    var total_num = total_list.length
-
-                                    $("#modal-title").text(data.select_date+'   '+inform.name+' 班登记详情')
+                                    var inform = response.data;
+                                    var record = inform.records[date.Format("MM/dd/yyyy")];
+                                    var teachers = response.teacherListAll;
+                                    var attend_list = inform.records[date.Format("MM/dd/yyyy")].attend_list;
+                                    var attend_num = attend_list.length;
+                                    var total_list = inform.student_list;
+                                    var total_num = total_list.length;
+                                    assistantAndSub(record,teachers);
+                                    $("#modal-title").text(date.Format("MM/dd/yyyy")+'   '+inform.name+' 班登记详情')
                                     $('#check_process').attr('aria-valuenow',attend_num*100/total_num)
                                     .css('width',attend_num*100/total_num+'%')
                                     .text(attend_num+'人/'+total_num+'人')
@@ -199,6 +227,7 @@
                         $('#myModal').modal()
                         $('#myModal').on('hidden.bs.modal', function (e) {
                             $('#check_list').html('')
+                            $('#comment').val('')
                         })
 
                     }
