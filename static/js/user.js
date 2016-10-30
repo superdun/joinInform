@@ -35,7 +35,73 @@
         })
         return recordsBydate
     }
+    var assistantAndSub = function(record,teachers){
 
+        if (record){
+            $('#subteacher').html('')
+            $("#issub").bootstrapSwitch('state',Boolean(record.substitute)).bootstrapSwitch('disabled',true);
+            $('#subteacher').attr('disabled','disabled')
+            if (Boolean(record.substitute)){
+                $('#subteacher').append('<option value = '+record.substitute_id+'>'+teachers[record.substitute_id].name+'</option>');
+            }
+            else{
+                $('#subteacher').append('<option>无</option>');
+            }
+            $("#isas").bootstrapSwitch('state',Boolean(record.assistant)).bootstrapSwitch('disabled',true);
+            $('#asteacher').attr('disabled','disabled')
+            if (Boolean(record.assistant)){
+                $('#asteacher').append('<option value = '+record.assistant_id+'>'+teachers[record.assistant_id].name+'</option>');
+            }
+            else{
+                $('#asteacher').append('<option>无</option>');
+            }
+
+        }
+        else{
+            $("#issub").bootstrapSwitch('state',false).bootstrapSwitch('disabled',false);
+            $("#isas").bootstrapSwitch('state',false).bootstrapSwitch('disabled',false);
+
+            $("#issub").on('switchChange.bootstrapSwitch',function(event, state) {
+                $('#subteacher').html('')
+                if (!state){
+                    $('#subteacher').append('<option>无</option>');
+                    $('#subteacher').attr('disabled','disabled');
+                }
+                else{
+                    $('#subteacher').removeAttr('disabled');
+                    $.each(teachers,function(k,v){
+                        $('#subteacher').append('<option value = '+k+'>'+v.name+'</option>');
+                    })
+                }
+            })
+            $("#isas").on('switchChange.bootstrapSwitch',function(event, state) {
+                $('#asteacher').html('')
+                if (!state){
+                    $('#asteacher').append('<option>无</option>');
+                    $('#asteacher').attr('disabled','disabled');
+                }
+                else{
+                    $('#asteacher').removeAttr('disabled');
+                    $.each(teachers,function(k,v){
+                        $('#asteacher').append('<option value = '+k+'>'+v.name+'</option>');
+                    })
+                }
+            })
+            // $("#issub").bootstrapSwitch('state',Boolean(record.substitute));
+            // if (Boolean(record.substitute)){
+            //     $('#subteacher').append('<option value = '+record.substitute_id+'>'+teachers[record.substitute_id].name+'</option>');
+            // }
+            // $("#isas").bootstrapSwitch('state',Boolean(record.assistant)).bootstrapSwitch('disabled','true');
+            // $('#asteacher').attr('disabled','disabled')
+            // if (Boolean(record.assistant)){
+            //     $('#asteacher').append('<option value = '+record.assistant_id+'>'+teachers[record.assistant_id].name+'</option>');
+            // }
+            // else{
+            //     $('#asteacher').append('<option>无</option>');
+            // }
+        }
+
+    }
 
     // $('#dates').multiDatesPicker({
     //     addDates: dates,
@@ -43,7 +109,25 @@
     //     defaultDate: '1/1/'+y
     // }) ; 
 
+    var getSum = function(record){
+        var sum = 0 
+        for (var i = 0 ;i<record.count;i++){
+            sum+=record.pay[i]*record.time[i]
+        }
+        return sum
+    }
 
+    var payDetailTable = function(record,tableId){ 
+        for (var i =0;i<record.count;i++){ 
+            $(tableId).append(
+                '<tr><td>'+record.date[i]
+                +'</td><td>'+record.course[i].name
+                +'</td><td>'+record.pay[i]*record.time[i]
+                +'</td></tr>'
+            )
+            
+        }
+    }
 
 
  

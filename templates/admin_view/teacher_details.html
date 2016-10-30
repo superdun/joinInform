@@ -30,6 +30,14 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>电话：</td>
+                        <td>{{ item.mobile}}</td>
+                    </tr>
+                    <tr>
+                        <td>Email：</td>
+                        <td>{{ item.email}}</td>
+                    </tr>
+                    <tr>
                         <td>生日：</td>
                         <td>{{ item.birthday}}</td>
                     </tr>
@@ -37,42 +45,73 @@
                         <td>学校：</td>
                         <td>{{ item.school}}</td>
                     </tr>
-                    <tr>
-                        <td>激活状态：</td>
-                        {%  if item.active ==1 %}
-                        <td>
-                            <h3>
-                                <span class="label label-success">已激活</span>
-                            </h3>
-                        </td>
-                        {%else%}
-                        <td>
-                            <h3>
-                                <span class="label label-default">未激活</span>
-                            </h3>
-                        </td>
-                        {%endif%}
-                    </tr>
-                    <tr>
-                        <td>确认状态：</td>
-                        {%  if item.confirm ==1 %}
-                        <td>
-                            <h3>
-                                <span class="label label-success">已确认</span>
-                            </h3>
-                        </td>
-                        {%else%}
-                        <td>
-                            <h3>
-                                <span class="label label-default">未确认</span>
-                            </h3>
-                        </td>
-                        {%endif%}
-                    </tr>
+
                 </table>
             </div>
             <div class="col-md-4">
-                <img src="..." class="img-responsive img-circle" alt="{{item.chinese_name}}的照片"></div>
+                <img src="#" class="img-responsive img-circle" alt="{{item.chinese_name}}的照片"></div>
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">状态信息</h3>
+        </div>
+        <div class="panel-body">
+            <table  class="table table-striped ">
+                <tr>
+                    <td>级别：</td>
+                    <td>{{item.stage.name}}</td>
+                </tr>
+                <tr>
+                    <td>总课时：</td>
+                    <td>{{item.total_hours}} 小时</td>
+                </tr>
+                <tr>
+                    <td>主教时薪：</td>
+                    <td>
+                        本部：{{item.stage.inpay}}
+                        <br>外派：{{item.stage.outpay}}</td>
+                </tr>
+                <tr>
+                    <td>助教时薪：</td>
+                    <td>
+                        本部：{{item.stage.asinpay}}
+                        <br>外派：{{item.stage.asoutpay}}</td>
+                </tr>
+                <tr>
+                    <td>激活状态：</td>
+                    {%  if item.active ==1 %}
+                    <td>
+                        <h3>
+                            <span class="label label-success">已激活</span>
+                        </h3>
+                    </td>
+                    {%else%}
+                    <td>
+                        <h3>
+                            <span class="label label-default">未激活</span>
+                        </h3>
+                    </td>
+                    {%endif%}
+                </tr>
+                <tr>
+                    <td>确认状态：</td>
+                    {%  if item.confirm ==1 %}
+                    <td>
+                        <h3>
+                            <span class="label label-success">已确认</span>
+                        </h3>
+                    </td>
+                    {%else%}
+                    <td>
+                        <h3>
+                            <span class="label label-default">未确认</span>
+                        </h3>
+                    </td>
+                    {%endif%}
+                </tr>
+            </table>
+
         </div>
     </div>
     <div class="panel panel-info">
@@ -110,20 +149,24 @@
             <div>
                 <table class="table table-striped " id='teach_records'>
                     <tr>
-                        <td>上课收入：</td>
-                        <td id="self-pay"></td>
+                        <td>主教收入：</td>
+                        <td id="self-pay">0.0  元</td>
                     </tr>
                     <tr>
                         <td>代课收入：</td>
-                        <td id="sub-pay"></td>
+                        <td id="sub-pay">0.0  元</td>
                     </tr>
                     <tr>
                         <td>助教收入：</td>
-                        <td id="as-pay"></td>
+                        <td id="as-pay">0.0  元</td>
+                    </tr>
+                    <tr>
+                        <td>奖惩：</td>
+                        <td id="prize-pay">0.0  元</td>
                     </tr>
                     <tr>
                         <td>时间段总收入：</td>
-                        <td id="sum-pay"></td>
+                        <td id="sum-pay">0.0  元</td>
                     </tr>
                 </table>
             </div>
@@ -146,13 +189,68 @@
                     <span aria-hidden="true">&times;</span>
                     <span class="sr-only">关闭</span>
                 </button>
-                <h4 class="modal-title" id="modal-title"></h4>
+                <h4 class="modal-title" id="modal-title">老师账户详情</h4>
             </div>
             <div class="modal-body" id="modal-body"></div>
+            <div class="list-group">
+                <div class="panel panel-default">
+                    <div class="panel-heading">主教记录</div>
+                    <div class="panel-body">
+                        <table class="table table-striped" id="self-pay-detail">
+                            <tr>
+                                <th>日期：</th>
+                                <th>课程：</th>
+                                <th>薪水：</th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">代课记录</div>
+                    <div class="panel-body">
+                        <table class="table table-striped" id="sub-pay-detail">
+                            <tr>
+                                <th>日期：</th>
+                                <th>课程：</th>
+                                <th>薪水：</th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">助教记录</div>
+                    <div class="panel-body">
+                        <table class="table table-striped" id="as-pay-detail">
+                            <tr>
+                                <th>日期：</th>
+                                <th>课程：</th>
+                                <th>薪水：</th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">奖惩记录</div>
+                    <div class="panel-body">
+                        <table class="table table-striped" id="prize-pay-detail">
+                            <tr>
+                                <th>日期：</th>
+                                <th>金额：</th>
+                                <th>备注：</th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">总和</div>
+                    <div class="panel-body"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
         </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-        </div>
+
     </div>
     <!-- /.modal-content -->
 </div>
@@ -166,13 +264,24 @@
     var y = today.getFullYear();
 
     var id = {{item.id}}*1
+
+
         //老师总结日历
+    
     $('#checkdates_teacher').daterangepicker({
         locale: {
             format: 'MM/DD/YYYY'
         }
-    }) ; 
-     $('#checkdates_teacher').on('apply.daterangepicker',function(e,picker){
+    }) ;
+    $('#myModal').off('shown.bs.modal').on('shown.bs.modal', function (e) {
+        alert('请选择时间段')
+         $('#myModal').modal('hide')
+    }).on('hidden.bs.modal', function (e) {
+        $('#self-pay-detail').remove('tr')
+        $('#as-pay-detail').remove('tr')
+        $('#sb-pay-detail').remove('tr')                
+    }) 
+    $('#checkdates_teacher').on('apply.daterangepicker',function(e,picker){
         var startDate = toTimeStamp(picker.startDate)
         var endDate = toTimeStamp(picker.endDate)
         var url = '/admin/teachers/api/account/detail/'+id
@@ -182,8 +291,22 @@
             dataType:'json',
             data:$('#checkdates_teacher').val(),
             success:function(response){
-                if (response.status ==='OK'){
-                    $('#self-pay').
+                if (response.status == 'OK'){
+                    console.log(response.selfRecords)
+                    var selfPay = getSum(response.selfRecords)
+                    var asPay = getSum(response.asRecords)
+                    var subPay = getSum(response.subRecords)
+                    var sumPay = selfPay+asPay+subPay
+                    $('#self-pay').html(selfPay+'  元')
+                    $('#as-pay').html(asPay+'  元')
+                    $('#sub-pay').html(subPay+'  元')
+                    $('#sum-pay').html(sumPay+'  元' )
+                    $('#myModal').off('shown.bs.modal').on('show.bs.modal',function(e){
+                        payDetailTable(response.selfRecords,'#self-pay-detail')
+                        payDetailTable(response.asRecords,'#as-pay-detail')
+                        payDetailTable(response.subRecords,'#sub-pay-detail')
+
+                    })
                 }
             }
         })

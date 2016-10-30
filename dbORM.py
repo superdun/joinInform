@@ -111,11 +111,17 @@ class Teachers(db.Model, UserMixin):
 class Teacherstages(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
-    payment_per_hour = db.Column(db.Float)
+    inpay = db.Column(db.Float)
+    outpay = db.Column(db.Float)
+    asinpay = db.Column(db.Float)
+    asoutpay = db.Column(db.Float)
 
-    def __init__(self, name='', payment_per_hour=1,):
+    def __init__(self, name='', inpay=1, outpay=1, asinpay=1, asoutpay=1):
         self.name = name
-        self.payment_per_hour = payment_per_hour
+        self.inpay = inpay
+        self.outpay = outpay
+        self.asinpay = asinpay
+        self.asoutpay = asoutpay
 
     def __repr__(self):
         return self.name
@@ -138,9 +144,10 @@ class Courses(db.Model):
     total_class = db.Column(db.Integer)
     dates = db.Column(db.String(1200))
     active = db.Column(db.Integer)
+    type = db.Column(db.String(120))
 
     def __init__(self, name='', summary='', former_teachers='', present_teacher_id=0, create_time='', update_time='', hours_per_class='',
-                 fee_per_class=0.0, modules='', present_class=0, total_class=0, active=1, dates=''):
+                 fee_per_class=0.0, modules='', present_class=0, total_class=0, active=1, dates='', type='out'):
         self.name = name
         self.summary = summary
         self.former_teachers = former_teachers
@@ -155,6 +162,7 @@ class Courses(db.Model):
         self.active = active
         self.dates = dates
         self.active = active
+        self.type = type
 
     def __repr__(self):
         return self.name
@@ -174,15 +182,19 @@ class Records(db.Model):
     comment = db.Column(db.String(12000))
     attend_list = db.Column(db.String(120))
     assistant_id = db.Column(db.Integer)
-
-    def __init__(self, date='', attend_list='', comment='', substitute_id=None, assistant_id=None, substitute=0):
+    assistant = db.Column(db.Integer)
+    pay = db.Column(db.Float)
+    aspay = db.Column(db.Float)
+    def __init__(self, date='', attend_list='', comment='', substitute_id=None, assistant_id=None, substitute=0, assistant=0, pay=0 ,aspay =0):
         self.date = date
         self.attend_list = attend_list
         self.comment = comment
         self.substitute_id = substitute_id
         self.assistant_id = assistant_id
         self.substitute = substitute
-
+        self.assistant = assistant
+        self.pay = pay
+        self.aspay = aspay
     def __repr__(self):
         return self.date
 

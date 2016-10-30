@@ -59,6 +59,10 @@ class StudentsSchema(ma.ModelSchema):
 
 
 class RecordsSchema(ma.ModelSchema):
+    course = fields.Nested('CoursesSchema', only=(
+        'name', 'fee_per_class', 'dates', 'id', 'type', 'hours_per_class'), many=False)
+    teacher = fields.Nested(
+        'TeachersSchema', only=('id', 'chinese_name', 'alias_name'), many=False)
 
     class Meta:
         model = Records
@@ -69,7 +73,7 @@ class CoursesSchema(ma.ModelSchema):
         StudentsSchema, many=True, exclude=('course',))
     records = fields.Nested(RecordsSchema, many=True)
     present_teacher = fields.Nested(
-        'TeachersSchema', only=('id', 'chinese_name', 'alias_name'))
+        'TeachersSchema', only=('id', 'chinese_name', 'alias_name'), many=False)
 
     class Meta:
         model = Courses
@@ -106,6 +110,7 @@ teacherstage_schema = TeacherstagesSchema()
 
 
 def selectName(student_list):
+
     for i in student_list:
         if i['chinese_name'] and i['alias_name']:
             i['name'] = '%s/%s' % (i['chinese_name'], i['alias_name'])
@@ -119,10 +124,37 @@ def selectName(student_list):
 def recordsByDate(records):
     newRecords = {}
     for i in records:
+
         date = time.strftime("%m/%d/%Y", time.localtime(float(i['date'])))
         i['attend_list'] = i['attend_list'].split(',')
         newRecords[date] = i
     return newRecords
+
+
+def teachersById(teacherList):
+    result = {}
+    selectName(teacherList)
+    for i in teacherList:
+        result[i['id']] = i
+    return result
+
+
+def recordsByAccount(records, courseType):
+    result = {'courseType': courseType, 'count': len(records), 'pay': [],
+              'time': [], 'date': [], 'course': []}
+
+    for record in records:
+
+        if courseType == 'as':
+            result['pay'].append(
+                record['aspay'] if record['course']['type'] == 'out' else record['aspay'])
+        else:
+            result['pay'].append(
+                record['pay'] if record['course']['type'] == 'out' else record['pay'])
+        result['time'].append(record['course']['hours_per_class'])
+        result['date'].append(time.strftime("%m/%d/%Y", time.localtime(float(record['date']))))
+        result['course'].append(record['course'])
+    return result
 
 
 class MyAdminBaseView(ModelView):
@@ -211,19 +243,29 @@ class TeacherView(MyTeacherBaseView):
         teacher = Teachers.query.get(id)
         return self.render('admin_view/teacher_details.html', item=teacher_schema.dump(teacher).data)
 
-    @expose('/api/detail/<id>')
+    @expose('/api/account/detail/<id>')
     def details_api(self, id):
 
         teacher = Teachers.query.get(id)
-        pay = teacher.stage.payment_per_hour
 
-        startDate = str(int(time.mktime(time.strptime(request.query_string.split('%20-%20')[0], '%m/%d/%Y'))))
-        endDate = str(int(time.mktime(time.strptime(request.query_string.split('%20-%20')[1], '%m/%d/%Y'))))
+        startDate = str(int(time.mktime(time.strptime(
+            request.query_string.split('%20-%20')[0], '%m/%d/%Y'))))
+        endDate = str(int(time.mktime(time.strptime(
+            request.query_string.split('%20-%20')[1], '%m/%d/%Y'))))
 
-        records = Records.query.filter(Records.date > startDate, Records.date < endDate).all()
-        records_schema.json.dump().data
+        records = Records.query.filter(
+            Records.date > startDate, Records.date < endDate)
 
-        return jsonify({'status': 'OK', "teacher": teacher_schema.dump(teacher).data, "courses": courses_schema.dump(teacher.course_list.all()).data, 'pay': pay})
+        selfRecords = recordsByAccount(records_schema.dump(
+            records.filter_by(teacher_id=id, substitute = 0).all()).data, 'self')
+
+        asRecords = recordsByAccount(records_schema.dump(
+            records.filter_by(assistant_id=id).all()).data, 'as')
+
+        subRecords = recordsByAccount(records_schema.dump(
+            records.filter_by(substitute_id=id).all()).data, 'sub')
+
+        return jsonify({'status': 'OK', "teacher": teacher_schema.dump(teacher).data,  'selfRecords': selfRecords, 'asRecords': asRecords, 'subRecords': subRecords})
 
 
 class StudentView(MyTeacherBaseView):
@@ -241,7 +283,6 @@ class StudentView(MyTeacherBaseView):
     @expose('/detail/<id>')
     def details_view(self, id):
         student = Students.query.get(id)
-        print(student_schema.dump(student).data)
 
         return self.render('admin_view/student_details.html', item=student_schema.dump(student).data)
 
@@ -284,7 +325,7 @@ class CourseView(MyTeacherBaseView):
     def checkin_api(self, id):
         presentCourse = Courses.query.get(id)
         date = request.form.get('date')
-
+        courseType = presentCourse.type
         presentCourse.present_class = presentCourse.dates.split(', ').index(date) + 1 if presentCourse.dates.index(date) + \
             1 > presentCourse.present_class else resentCourse.present_class
 
@@ -293,24 +334,44 @@ class CourseView(MyTeacherBaseView):
 
         comment = request.form.get(
             'comment') if request.form.get('comment') else ''
-        substitute = request.form.get('substitute')
-        if substitute == 1:
-            subTeacher_id = request.form.get('subTeacherId')
+        substitute = request.form.get('sub')
+        assistant = request.form.get('as')
 
         if not date:
             return jsonify({'status': 'failed'})
         record = Records()
-        print type(date)
         record.date = date
         record.course_id = id
-        if substitute == 1 and subTeacher_id:
-            record.substitute_id = subTeacher_id
+
+        if substitute == 'true':
+            substitute_id = request.form.get('subId')
+            record.substitute = 1
+            record.substitute_id = substitute_id
+            if courseType == 'out':
+                record.pay = Teachers.query.get(substitute_id).stage.outpay
+            else:
+                record.pay = Teachers.query.get(substitute_id).stage.inpay
+        else :
+            teacher_id = presentCourse.present_teacher_id
+            if courseType == 'out':
+                record.pay = Teachers.query.get(teacher_id).stage.outpay
+            else:
+                record.pay = Teachers.query.get(teacher_id).stage.inpay
+
+        if assistant == 'true':
+            assistant_id = request.form.get('asId')
+            record.assistant = 1
+            record.assistant_id = assistant_id
+            if courseType == 'out':
+                record.aspay = Teachers.query.get(
+                    substitute_id).stage.asoutpay
+            else:
+                record.aspay = Teachers.query.get(substitute_id).stage.asinpay
         record.teacher_id = presentCourse.present_teacher_id
-        record.comment = comment
         record.attend_list = ','.join(attendList)
-        # record.attend_list = attendList
         Teachers.query.get(
             presentCourse.present_teacher_id).total_hours += presentCourse.hours_per_class
+
         db.session.add(record)
         db.session.commit()
         return jsonify({'status': 'OK'})
@@ -323,7 +384,10 @@ class CourseView(MyTeacherBaseView):
             return jsonify({'data': 'NO ITEM', 'status': 'false'})
         data['records'] = recordsByDate(data['records'])
         data['student_list'] = selectName(data['student_list'])
-        return jsonify({'data': data, 'status': 'OK'})
+        teacherList = db.session.query(
+            Teachers.id, Teachers.chinese_name, Teachers.alias_name).all()
+        teacherListAll = teachersById(teachers_schema.dump(teacherList).data)
+        return jsonify({'data': data, 'status': 'OK', 'teacherListAll': teacherListAll})
 
 
 class TeacherstagesView(MyAdminBaseView):

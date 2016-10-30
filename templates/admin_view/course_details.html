@@ -197,6 +197,7 @@
                                     var teachers = response.teacherListAll;
                                     var attend_list = inform.records[date.Format("MM/dd/yyyy")].attend_list;
                                     var attend_num = attend_list.length;
+                                    alert(attend_list.length)
                                     var total_list = inform.student_list;
                                     var total_num = total_list.length;
                                     assistantAndSub(record,teachers);
@@ -206,6 +207,7 @@
                                     .text(attend_num+'人/'+total_num+'人')
                                     $.each(total_list,function(l){
                                         //出席
+                                        alert()
                                         if ($.inArray(this.id.toString(),l)>=0){
                                             $('#check_list').append("<a href ='/admin/students/detail/"+this.id+"' class='list-group-item list-group-item-success'>"+this.name+'</a>')
                                         }

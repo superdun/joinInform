@@ -177,6 +177,7 @@
                                     var total_list = inform.student_list
                                     var total_num = total_list.length
                                     assistantAndSub(false,teachers);
+                                    $('#comment').removeAttr('disabled')
                                     $.each(total_list,function(){
                                         $('#check_list').append("<li class='list-group-item list-group-item-danger student-status' status='not-checkin' student_id='"+this.id+"'>"+this.name +'</a>')                             
                                     })
