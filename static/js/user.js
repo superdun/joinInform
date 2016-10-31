@@ -118,12 +118,13 @@
     }
 
     var payDetailTable = function(record,tableId){ 
+
         for (var i =0;i<record.count;i++){ 
             $(tableId).append(
-                '<tr><td>'+record.date[i]
+                "<tr class='tmp'><td>"+record.date[i]
                 +'</td><td>'+record.course[i].name
-                +'</td><td>'+record.pay[i]*record.time[i]
-                +'</td></tr>'
+                +'</td><td>'+record.pay[i]*record.time[i] 
+                +'  元</td></tr>'
             )
             
         }

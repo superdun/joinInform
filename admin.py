@@ -16,6 +16,7 @@ from flask_security import Security, SQLAlchemyUserDatastore, \
 from flask_security.utils import encrypt_password
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
+import requests
 import json
 import time
 

@@ -191,74 +191,74 @@
                 </button>
                 <h4 class="modal-title" id="modal-title">老师账户详情</h4>
             </div>
-            <div class="modal-body" id="modal-body"></div>
-            <div class="list-group">
-                <div class="panel panel-default">
-                    <div class="panel-heading">主教记录</div>
-                    <div class="panel-body">
-                        <table class="table table-striped" id="self-pay-detail">
-                            <tr>
-                                <th>日期：</th>
-                                <th>课程：</th>
-                                <th>薪水：</th>
-                            </tr>
-                        </table>
+            <div class="modal-body" id="modal-body">
+                <h3 id="detail-title"></h3>
+                <div class="list-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">主教记录</div>
+                        <div class="panel-body">
+                            <table class="table table-striped" id="self-pay-detail">
+                                <tr>
+                                    <th>日期：</th>
+                                    <th>课程：</th>
+                                    <th>薪水：</th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">代课记录</div>
+                        <div class="panel-body">
+                            <table class="table table-striped" id="sub-pay-detail">
+                                <tr>
+                                    <th>日期：</th>
+                                    <th>课程：</th>
+                                    <th>薪水：</th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">助教记录</div>
+                        <div class="panel-body">
+                            <table class="table table-striped" id="as-pay-detail">
+                                <tr>
+                                    <th>日期：</th>
+                                    <th>课程：</th>
+                                    <th>薪水：</th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">奖惩记录</div>
+                        <div class="panel-body">
+                            <table class="table table-striped" id="prize-pay-detail">
+                                <tr>
+                                    <th>日期：</th>
+                                    <th>金额：</th>
+                                    <th>备注：</th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">总和</div>
+                        <div class="panel-body" id="sum-pay-detail"></div>
                     </div>
                 </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading">代课记录</div>
-                    <div class="panel-body">
-                        <table class="table table-striped" id="sub-pay-detail">
-                            <tr>
-                                <th>日期：</th>
-                                <th>课程：</th>
-                                <th>薪水：</th>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading">助教记录</div>
-                    <div class="panel-body">
-                        <table class="table table-striped" id="as-pay-detail">
-                            <tr>
-                                <th>日期：</th>
-                                <th>课程：</th>
-                                <th>薪水：</th>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading">奖惩记录</div>
-                    <div class="panel-body">
-                        <table class="table table-striped" id="prize-pay-detail">
-                            <tr>
-                                <th>日期：</th>
-                                <th>金额：</th>
-                                <th>备注：</th>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading">总和</div>
-                    <div class="panel-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-            </div>
-        </div>
 
-    </div>
-    <!-- /.modal-content -->
-</div>
-<!-- /.modal-dialog -->
-{% endblock body %}
+        </div>
+        <!-- /.modal-content --> </div>
+    <!-- /.modal-dialog -->
+    {% endblock body %}
 {% block tail %}
 {{super()}}
-<script type="text/javascript">
+    <script type="text/javascript">
     var today = new Date();
 
     var y = today.getFullYear();
@@ -277,9 +277,11 @@
         alert('请选择时间段')
          $('#myModal').modal('hide')
     }).on('hidden.bs.modal', function (e) {
-        $('#self-pay-detail').remove('tr')
-        $('#as-pay-detail').remove('tr')
-        $('#sb-pay-detail').remove('tr')                
+        $('.tmp').remove()
+        $('.tmp').remove('.tmp')
+        $('.tmp').remove('.tmp')
+        $('#sum-pay-detail').html('')
+        $('#detail-title').html('')                
     }) 
     $('#checkdates_teacher').on('apply.daterangepicker',function(e,picker){
         var startDate = toTimeStamp(picker.startDate)
@@ -305,11 +307,12 @@
                         payDetailTable(response.selfRecords,'#self-pay-detail')
                         payDetailTable(response.asRecords,'#as-pay-detail')
                         payDetailTable(response.subRecords,'#sub-pay-detail')
-
+                        $('#sum-pay-detail').html(sumPay+'元')
+                        $('detail-title').html()
                     })
                 }
             }
         })
      }) ;
 </script>
-{% endblock %}
+    {% endblock %}
