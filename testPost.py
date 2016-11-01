@@ -17,6 +17,8 @@ targetUrl = 'http://weixin.join-inedu.com/core/' + '='.join(d('.listTable .listT
 print targetUrl
 r3 = requests.get(targetUrl, cookies=session.cookies)
 r4 = requests.get('http://weixin.join-inedu.com/core/main.php', cookies=session.cookies)
-headers['Content-Type'] = 'multipart/form-data; boundary=%s' % session.cookies['PHPSESSID']
-r5 = requests.post('http://weixin.join-inedu.com/core/kindeditor/php/upload_json.php?dir=image', headers=headers, cookies=session.cookies)
-print r4.text
+headers['Content-Type'] = 'multipart/form-data; boundary=----WebKitFormBoundary%s' % session.cookies['PHPSESSID']
+imgload = {'localUrl': (None, '/home/dun/Downloads/images.jpg'), 'imgFile': open('/home/dun/Downloads/images.jpg', 'rb')}
+r5 = requests.post('http://weixin.join-inedu.com/core/kindeditor/php/upload_json.php?dir=image', headers=headers, cookies=session.cookies, files=imgload)
+
+print r5.content
