@@ -67,17 +67,7 @@
                 <h4 class="modal-title" id="modal-title"></h4>
             </div>
             <div class="modal-body" id="modal-body">
-                <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active">
-                        <a href="#">Home</a>
-                    </li>
-                    <li role="presentation">
-                        <a href="#">Profile</a>
-                    </li>
-                    <li role="presentation">
-                        <a href="#">Messages</a>
-                    </li>
-                </ul>
+            <iframe src="http://weixin.join-inedu.com/core/info_edit.php?class_id=103102&amp;select_class=103102&amp;select_state=0&amp;keyword=&amp;page=1&amp;id=479" style="width: 100%" id="myiframe"></iframe>
                 <div>
                     <h4>代课情况:</h4>
                     <input type="checkbox" id="issub" checked />
@@ -173,6 +163,7 @@
                 date.getDate());
                 if(data != null && ('message' in data)) {
                     alert(data.message + '\n' + date);
+                    console.log($("#myiframe").contents().find("#myContent").val())
                         var url = '/admin/courses/api/detail/'+id;
                         $.ajax({
                             url:url,
@@ -315,5 +306,8 @@
 
         });
     };
+    window.onload=function(e){
+    	
+    }
 </script>
 {% endblock %}

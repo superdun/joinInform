@@ -242,7 +242,10 @@ class TeacherView(MyTeacherBaseView):
     @expose('/detail/<id>')
     def details_view(self, id):
         teacher = Teachers.query.get(id)
-        return self.render('admin_view/teacher_details.html', item=teacher_schema.dump(teacher).data)
+        if current_user.has_role('admin') or str(current_user.id) == id:
+            return self.render('admin_view/teacher_details.html', item=teacher_schema.dump(teacher).data)
+        else:
+            abort(403)
 
     @expose('/api/account/detail/<id>')
     def details_api(self, id):
@@ -258,15 +261,17 @@ class TeacherView(MyTeacherBaseView):
             Records.date > startDate, Records.date < endDate)
 
         selfRecords = recordsByAccount(records_schema.dump(
-            records.filter_by(teacher_id=id, substitute = 0).all()).data, 'self')
+            records.filter_by(teacher_id=id, substitute=0).all()).data, 'self')
 
         asRecords = recordsByAccount(records_schema.dump(
             records.filter_by(assistant_id=id).all()).data, 'as')
 
         subRecords = recordsByAccount(records_schema.dump(
             records.filter_by(substitute_id=id).all()).data, 'sub')
-
-        return jsonify({'status': 'OK', "teacher": teacher_schema.dump(teacher).data,  'selfRecords': selfRecords, 'asRecords': asRecords, 'subRecords': subRecords})
+        if current_user.has_role('admin') or str(current_user.id) == id:
+            return jsonify({'status': 'OK', "teacher": teacher_schema.dump(teacher).data,  'selfRecords': selfRecords, 'asRecords': asRecords, 'subRecords': subRecords})
+        else:
+            abort(403)
 
 
 class StudentView(MyTeacherBaseView):
@@ -284,8 +289,15 @@ class StudentView(MyTeacherBaseView):
     @expose('/detail/<id>')
     def details_view(self, id):
         student = Students.query.get(id)
+        if current_user.is_authenticated and (current_user.has_role('teacher') or current_user.has_role('admin')):
+            id_list = []
+            for i in current_user.course_list:
+                for j in i.student_list:
+                    id_list.append(i.id)
 
-        return self.render('admin_view/student_details.html', item=student_schema.dump(student).data)
+            if int(id) in id_list or current_user.has_role('admin'):
+                return self.render('admin_view/student_details.html', item=student_schema.dump(student).data)
+        abort(403)
 
 
 class CourseView(MyTeacherBaseView):
@@ -294,7 +306,7 @@ class CourseView(MyTeacherBaseView):
         'former_teachers', 'create_time', 'update_time', 'present_class')
 
     def get_query(self):
-        if current_user.is_authenticated and current_user.has_role('teacher'):
+        if current_user.is_authenticated and (current_user.has_role('teacher') or current_user.has_role('admin')):
             # print current_user.course_list
             id_list = []
             for i in current_user.course_list:
@@ -309,7 +321,15 @@ class CourseView(MyTeacherBaseView):
         course = Courses.query.get(id)
         if not course:
             return redirect(url_for('.index_view'))
-        return self.render('admin_view/course_details.html', item=course_schema.dump(course).data)
+
+        if current_user.is_authenticated and (current_user.has_role('teacher') or current_user.has_role('admin')):
+            # print current_user.course_list
+            id_list = []
+            for i in current_user.course_list:
+                id_list.append(i.id)
+            if int(id) in id_list or current_user.has_role('admin'):
+                return self.render('admin_view/course_details.html', item=course_schema.dump(course).data)
+        abort(403)
 
     @expose('/checkin/<id>', methods=['GET', 'POST'])
     def checkin_view(self, id):
@@ -319,8 +339,14 @@ class CourseView(MyTeacherBaseView):
         item = course_schema.dump(course).data
         item['records'] = recordsByDate(item['records'])
         item['student_list'] = selectName(item['student_list'])
-
-        return self.render('admin_view/checkin.html', item=item)
+        if current_user.is_authenticated and (current_user.has_role('teacher') or current_user.has_role('admin')):
+            # print current_user.course_list
+            id_list = []
+            for i in current_user.course_list:
+                id_list.append(i.id)
+            if int(id) in id_list or current_user.has_role('admin'):
+                return self.render('admin_view/checkin.html', item=item)
+        abort(403)
 
     @expose('/api/checkin/<id>', methods=['GET', 'POST'])
     def checkin_api(self, id):
@@ -352,7 +378,7 @@ class CourseView(MyTeacherBaseView):
                 record.pay = Teachers.query.get(substitute_id).stage.outpay
             else:
                 record.pay = Teachers.query.get(substitute_id).stage.inpay
-        else :
+        else:
             teacher_id = presentCourse.present_teacher_id
             if courseType == 'out':
                 record.pay = Teachers.query.get(teacher_id).stage.outpay
@@ -388,7 +414,15 @@ class CourseView(MyTeacherBaseView):
         teacherList = db.session.query(
             Teachers.id, Teachers.chinese_name, Teachers.alias_name).all()
         teacherListAll = teachersById(teachers_schema.dump(teacherList).data)
-        return jsonify({'data': data, 'status': 'OK', 'teacherListAll': teacherListAll})
+
+        if current_user.is_authenticated and (current_user.has_role('teacher') or current_user.has_role('admin')):
+            # print current_user.course_list
+            id_list = []
+            for i in current_user.course_list:
+                id_list.append(i.id)
+            if int(id) in id_list or current_user.has_role('admin'):
+                return jsonify({'data': data, 'status': 'OK', 'teacherListAll': teacherListAll})
+        abort(403)
 
 
 class TeacherstagesView(MyAdminBaseView):
