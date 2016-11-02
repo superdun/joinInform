@@ -67,7 +67,6 @@
                 <h4 class="modal-title" id="modal-title"></h4>
             </div>
             <div class="modal-body" id="modal-body">
-            <iframe src="http://weixin.join-inedu.com/core/info_edit.php?class_id=103102&amp;select_class=103102&amp;select_state=0&amp;keyword=&amp;page=1&amp;id=479" style="width: 100%" id="myiframe"></iframe>
                 <div>
                     <h4>代课情况:</h4>
                     <input type="checkbox" id="issub" checked />
@@ -93,6 +92,15 @@
                 <input type="text" id="comment">
                 <h4>签到单</h4>
                 <ul class="list-group" id='check_list'></ul>
+                <div id="wechat">
+                <hr>
+                <h3>wechat</h3>
+
+                <h4>title:</h4>
+                <input type="text" id="title"><br>
+                <h4>content:</h4>
+                <textarea id='content'></textarea>
+                </div>
             </div>
 
             <div class="modal-footer">
@@ -108,7 +116,18 @@
 {% endblock body %}
 {% block tail %}
 {{super()}}
-<script type="text/javascript">
+    <script src="{{url_for('static', filename='vendor/noty/js/jquery.noty.js')}}"></script>
+    <script src="{{url_for('static', filename='vendor/noty/js/layouts/inline.js')}}"></script>
+    <script src="{{url_for('static', filename='vendor/noty/js/themes/bootstrap.js')}}"></script>
+
+    <script src="{{url_for('static', filename='vendor/jQuery-File-Upload/js/vendor/jquery.ui.widget.js')}}/"></script>
+	<script src="{{url_for('static', filename='vendor/jQuery-File-Upload/js/jquery.iframe-transport.js')}}"></script>
+	<script src="{{url_for('static', filename='vendor/jQuery-File-Upload/js/jquery.fileupload.js')}}"></script>
+    <script src="{{url_for('static', filename='vendor/ckeditor/ckeditor.js')}}"></script>
+	<script src="{{url_for('static', filename='vendor/ckeditor/adapters/jquery.js')}}"></script>
+	<script type="text/javascript">
+    $('#content').ckeditor();
+
     var today = new Date();
 
     var y = today.getFullYear();
@@ -163,7 +182,6 @@
                 date.getDate());
                 if(data != null && ('message' in data)) {
                     alert(data.message + '\n' + date);
-                    console.log($("#myiframe").contents().find("#myContent").val())
                         var url = '/admin/courses/api/detail/'+id;
                         $.ajax({
                             url:url,
@@ -179,6 +197,7 @@
                                     var total_list = inform.student_list
                                     var total_num = total_list.length
                                     assistantAndSub(false,teachers);
+                                     $('#wechat').show()
                                     $('#comment').removeAttr('disabled')
                                     $.each(total_list,function(){
                                         $('#check_list').append("<li class='list-group-item list-group-item-danger student-status' status='not-checkin' student_id='"+this.id+"'>"+this.name +'</a>')                             
@@ -214,13 +233,14 @@
                                         var subId = $('#subteacher').val()
                                         var as = $("#isas").bootstrapSwitch('state')
                                         var asId =  $('#asteacher').val()
-                                        
+                                        var title = $('#title').val()
+                                        var content = $('#content').val()
                                         $.ajax({
                                             url:url,
                                             type:'POST',
                                             dataType:'json',
                                             traditional:true,
-                                            data:{'date':date.Format("MM/dd/yyyy"),'attend_list':attend_list,'total_list':total_list,'comment':comment,'sub':sub,'subId':subId,'as':as,'asId':asId},
+                                            data:{'date':date.Format("MM/dd/yyyy"),'attend_list':attend_list,'total_list':total_list,'comment':comment,'sub':sub,'subId':subId,'as':as,'asId':asId,'title':title,'content':content},
                                             success:function(response){
                                                 if(response.status=='OK'){
                                                     $('#submit').css('display','none')
@@ -266,7 +286,7 @@
                                     var total_list = inform.student_list
                                     var total_num = total_list.length
                                     assistantAndSub(record,teachers);
- 
+ 									$('#wechat').hide()
                                     $("#modal-title").text(date.Format("MM/dd/yyyy")+'   '+inform.name+' 班登记详情')
                                     $('#comment').val(record.comment).attr('disabled','disabled');
     
@@ -306,8 +326,6 @@
 
         });
     };
-    window.onload=function(e){
-    	
-    }
+
 </script>
 {% endblock %}

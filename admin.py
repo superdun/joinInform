@@ -15,10 +15,15 @@ from flask_security import Security, SQLAlchemyUserDatastore, \
     UserMixin, RoleMixin, login_required, current_user
 from flask_security.utils import encrypt_password
 from flask_marshmallow import Marshmallow
+
+from flask_qiniustorage import Qiniu
+
 from marshmallow import fields
 import requests
 import json
 import time
+
+import thumb
 
 
 class MyHomeView(AdminIndexView):
@@ -50,6 +55,9 @@ class ValidationError(RuntimeError):
 user_datastore = SQLAlchemyUserDatastore(db, Teachers, Role)
 security = Security(app, user_datastore)
 ma = Marshmallow(app)
+qiniu_store = Qiniu(app)
+QINIU_DOMAIN = app.config.get('QINIU_BUCKET_DOMAIN', '')
+UPLOAD_URL = app.config.get('UPLOAD_URL')
 
 
 class StudentsSchema(ma.ModelSchema):
@@ -138,6 +146,9 @@ def teachersById(teacherList):
     for i in teacherList:
         result[i['id']] = i
     return result
+
+
+def wechat(title, content):
 
 
 def recordsByAccount(records, courseType):
@@ -460,6 +471,12 @@ def security_context_processor():
 # return render_template('index.html', carousels=carousels,
 # img_domain=img_domain, thumbnail=thumbnail)
 
+
+@app.route('/admin/upload', methods=['POST'])
+def upload():
+    file = request.files.to_dict()['files[]']
+    result = thumb.upload_file(file, UPLOAD_URL, QINIU_DOMAIN, qiniu_store)
+    return jsonify(result)
 
 if __name__ == '__main__':
 
