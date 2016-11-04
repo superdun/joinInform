@@ -3,14 +3,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import time
-
-from flask_security import Security, SQLAlchemyUserDatastore, \
-    UserMixin, RoleMixin, login_required, current_user
-
-app = Flask(__name__, instance_relative_config=True)
-app.config.from_object('config')
-app.config.from_pyfile('localConfig.py')
-db = SQLAlchemy(app)
+from ModuleGlobal import db
 
 # db
 
@@ -145,9 +138,10 @@ class Courses(db.Model):
     dates = db.Column(db.String(1200))
     active = db.Column(db.Integer)
     type = db.Column(db.String(120))
+    wechat_id = db.Column(db.String(120))
 
     def __init__(self, name='', summary='', former_teachers='', present_teacher_id=0, create_time='', update_time='', hours_per_class='',
-                 fee_per_class=0.0, modules='', present_class=0, total_class=0, active=1, dates='', type='out'):
+                 fee_per_class=0.0, modules='', present_class=0, total_class=0, active=1, dates='', type='out', wechat_id=''):
         self.name = name
         self.summary = summary
         self.former_teachers = former_teachers
@@ -163,6 +157,7 @@ class Courses(db.Model):
         self.dates = dates
         self.active = active
         self.type = type
+        self.wechat_id = wechat_id
 
     def __repr__(self):
         return self.name
@@ -185,7 +180,8 @@ class Records(db.Model):
     assistant = db.Column(db.Integer)
     pay = db.Column(db.Float)
     aspay = db.Column(db.Float)
-    def __init__(self, date='', attend_list='', comment='', substitute_id=None, assistant_id=None, substitute=0, assistant=0, pay=0 ,aspay =0):
+
+    def __init__(self, date='', attend_list='', comment='', substitute_id=None, assistant_id=None, substitute=0, assistant=0, pay=0, aspay=0):
         self.date = date
         self.attend_list = attend_list
         self.comment = comment
@@ -195,6 +191,7 @@ class Records(db.Model):
         self.assistant = assistant
         self.pay = pay
         self.aspay = aspay
+
     def __repr__(self):
         return self.date
 

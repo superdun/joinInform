@@ -32,7 +32,7 @@ def upload_file(file, basePath, domain, storeModel):
             ret, info = storeModel.save(fp, qiniu_file_name)
             if 200 != info.status_code:
                 raise Exception("upload to qiniu failed", info)
-                
+
         shutil.rmtree(pic_dir)
         # return filename
         localUrl = 'http://' + domain + '/' + qiniu_file_name
