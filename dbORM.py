@@ -2,11 +2,17 @@
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_security import UserMixin
+
 import time
-from ModuleGlobal import db
+
 
 # db
 
+app = Flask(__name__, instance_relative_config=True)
+app.config.from_object('config')
+app.config.from_pyfile('localConfig.py')
+db = SQLAlchemy(app)
 
 role_teacher = db.Table(
     'role_teacher',

@@ -1,4 +1,4 @@
-from BaseView import MyTeacherBaseView
+from BaseView import MyTeacherBaseView,MyAdminBaseView
 from flask_admin import expose
 from dbORM import db, Teachers, Students, Courses, Teacherstages, Role, Records, app
 

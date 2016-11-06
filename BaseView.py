@@ -1,5 +1,10 @@
 from flask_admin.contrib.sqla import ModelView
-from dbORM import db, Teachers, Students, Courses, Teacherstages, Role, Records, app
+
+from flask_security import current_user
+from flask import Flask, url_for, redirect, render_template, request, abort, jsonify
+
+
+from dbORM import db, Teachers, Students, Courses, Teacherstages, Role, Records
 
 
 class MyAdminBaseView(ModelView):
