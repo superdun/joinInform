@@ -1,6 +1,15 @@
-from BaseView import MyTeacherBaseView,MyAdminBaseView
+# -*- coding:utf-8 -*-
+
+from flask import Flask, url_for, redirect, render_template, request, abort, jsonify
+
+from BaseView import MyTeacherBaseView, MyAdminBaseView
 from flask_admin import expose
 from dbORM import db, Teachers, Students, Courses, Teacherstages, Role, Records, app
+from ModuleMash import teachers_schema, courses_schema, students_schema, records_schema, teacher_schema, course_schema, student_schema, record_schema, teacherstage_schema
+
+from ModuleSecurity import current_user
+import json
+import time
 
 
 def recordsByAccount(records, courseType):
@@ -29,9 +38,12 @@ class ValidationError(RuntimeError):
 
 class TeacherView(MyTeacherBaseView):
     can_edit = True
+    column_labels = dict(stage=u'课程', role=u'角色', chinese_name=u'姓名', alias_name=u'外号', mobile=u'电话', birthday=u'生日',
+                         gender=u'性别 (1为男，2为女)', school=u'学校', address=u'地址', photo=u'头像', create_time=u'注册时间',
+                         comment=u'备注', active=u'激活状态', confirm=u'确认状态', course_list=u'课程列表', total_hours=u'入职总课时')
 
-    column_exclude_list = ('password',)
-    form_excluded_columns = ('password',)
+    column_exclude_list = ('password', 'history')
+    form_excluded_columns = ('password', 'records', 'history', 'prizes')
 
     def get_query(self):
         if current_user.is_authenticated and current_user.has_role('teacher'):
@@ -81,10 +93,10 @@ class TeacherView(MyTeacherBaseView):
             abort(403)
 
 
-class TeacherstagesView(MyAdminBaseView):
-    list_template = 'admin_view/my_list_template.html'
+# class TeacherstagesView(MyAdminBaseView):
+#     list_template = 'admin_view/my_list_template.html'
 
-    @expose('/detail/<id>')
-    def details_view(self, id):
-        teacherstage = Teacherstages.query.get(id)
-        return self.render('admin_view/teacherstage_details.html', item=teacherstage_schema.dump(teacherstage).data)
+    # @expose('/detail/<id>')
+    # def details_view(self, id):
+    #     teacherstage = Teacherstages.query.get(id)
+    #     return self.render('admin_view/teacherstage_details.html', item=teacherstage_schema.dump(teacherstage).data)

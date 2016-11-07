@@ -1,7 +1,14 @@
-from BaseView import MyTeacherBaseView
+# -*- coding:utf-8 -*-
+from flask import Flask, url_for, redirect, render_template, request, abort, jsonify
 from flask_admin import expose
+from BaseView import MyTeacherBaseView
+
 from dbORM import db, Teachers, Students, Courses, Teacherstages, Role, Records, app
 from ModuleWechatPost import postWecourse
+from ModuleMash import teachers_schema, courses_schema, students_schema, records_schema, teacher_schema, course_schema, student_schema, record_schema, teacherstage_schema
+
+from ModuleSecurity import current_user
+import time
 
 
 def teachersById(teacherList):
@@ -42,11 +49,13 @@ def selectName(student_list):
 
 class CourseView(MyTeacherBaseView):
 
-    form_excluded_columns = (
-        'former_teachers', 'create_time', 'update_time', 'present_class')
+    column_labels = dict(present_teacher=u'课程老师',  name=u'课程名称', summary=u'简介', hours_per_class=u'每堂课时间 / 小时', fee_per_class=u'每堂课价格',
+                         modules=u'模块（逗号分割）', total_class=u'总课数', dates=u'日期选择', active=u'激活（1为激活，0为未激活）', type=u'类型（out为外派，in为本部）',
+                         wechat_id=u'微课程id', student_list=u'学生名单')
+    form_excluded_columns = ('former_teachers', 'create_time', 'update_time', 'present_class', 'records')
 
     def get_query(self):
-        if current_user.is_authenticated and (current_user.has_role('teacher') or current_user.has_role('admin')):
+        if current_user.is_authenticated and (current_user.has_role('teacher')):
             # print current_user.course_list
             id_list = []
             for i in current_user.course_list:

@@ -11,10 +11,10 @@ from TeacherView import TeacherView
 from StudentView import StudentView
 from CourseView import CourseView
 from BaseView import MyAdminBaseView
-from TeacherView import TeacherView, TeacherstagesView
+from TeacherView import TeacherView
 
 from ModuleGlobal import app
-from ModuleSecurity import security,current_user
+from ModuleSecurity import security, current_user
 
 import requests
 import json
@@ -44,7 +44,7 @@ admin.add_view(TeacherView(Teachers, db.session))
 admin.add_view(StudentView(Students, db.session))
 admin.add_view(CourseView(Courses, db.session))
 
-admin.add_view(TeacherstagesView(Teacherstages, db.session))
+admin.add_view(MyAdminBaseView(Teacherstages, db.session))
 admin.add_view(MyAdminBaseView(Role, db.session))
 
 # define a context processor for merging flask-admin's template context into the
@@ -67,6 +67,10 @@ def upload():
     result = thumb.upload_file(file, UPLOAD_URL, QINIU_DOMAIN, qiniu_store)
     return jsonify(result)
 
+
+@app.route('/')
+def index():
+    redirect('/admin')
 if __name__ == '__main__':
 
     app.run(debug=True, port=7778)
