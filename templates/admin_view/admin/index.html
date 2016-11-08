@@ -2,84 +2,217 @@
 {% block body %}
 {{ super() }}
 <div class="container">
-<div class="row">
-    <div class="col-sm-10 col-sm-offset-1">
-        <h1 align="center">欢迎来到  卓因青少年创客工厂</h1>
-        <h2 align="center">信息管理系统</h2>
-        {% if not current_user.is_authenticated %}
-        <p class="lead">你可以登陆为超级管理员，查看并操作所有数据；或是登陆为老师，管理你的个人信息与班级</p>
-        <p>
-            <a class="btn btn-primary" href="{{ url_for('security.login') }}">login</a>
-            <a class="btn btn-default" href="{{ url_for('security.register') }}">register</a>
-        </p>
-        {% elif  current_user.is_authenticated and not current_user.has_role('teacher') and not current_user.has_role('admin') %}
-        <p>你已经成功注册，请点击按钮申请管理员确认，申请之后您就可以正常使用本系统</p>
-        <p>
-            <a class="btn btn-primary" href="/">申请确认</a>
-        </p>
-        {% elif current_user.is_authenticated and current_user.has_role('teacher')%}
-        <h3>
-            欢迎你，{% if current_user.alias_name -%}
-        {{ current_user.alias_name }}  老师
-        {% elif current_user.chinese_name %}
-        {{current_user.chinese_name}}  老师
-        {% else %}
-        {{ current_user.email }}
-        {% endif %}
-        </h3>
-        <div>
-            <div class="col-sm-4">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-lg btn-outline dropdown-toggle" data-toggle="dropdown">
-                        个人信息
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
-                        <li>
-                            <a href={{url_for('teachers.edit_view',id=current_user.id)}}>完善个人信息</a>
-                        </li>
-                        <li>
-                            <a href={{ url_for('security.change_password') }}>修改密码</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-sm-4">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-lg btn-outline dropdown-toggle" data-toggle="dropdown">
-                        班级详情
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
-                        {%for course in courses%}
-                        <li>
-                            <a href={{ url_for('courses.details_view', id=course.id) }}>{{course.name}}</a>
-                        </li>
-                        {%endfor%}
-                    </ul>
-                </div>
-            </div>
-            <div class="col-sm-4">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-lg btn-outline dropdown-toggle" data-toggle="dropdown">
-                        上课登记
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
-                        {%for course in courses%}
-                        <li>
-                            <a href={{ url_for('courses.checkin_view', id=course.id) }}>{{course.name}}</a>
-                        </li>
-                        {%endfor%}
-                    </ul>
-                </div>
+    <div class="row">
+        <div class="col-sm-10 col-sm-offset-1">
+            <h1 align="center">欢迎来到 卓因青少年创客工场</h1>
+            <h2 align="center">信息管理系统</h2>
+            {% if not current_user.is_authenticated %}
+            <p class="lead">你可以登陆为超级管理员，查看并操作所有数据；或是登陆为老师，管理你的个人信息与班级</p>
+            <p>
+                <a class="btn btn-primary" href="{{ url_for('security.login') }}">login</a>
+                <a class="btn btn-default" href="{{ url_for('security.register') }}">register</a>
+            </p>
+            {% elif current_user.is_authenticated and not current_user.has_role('teacher') and not
+            current_user.has_role('admin') %}
+            <p>你已经成功注册，请申请管理员确认，之后您就可以正常使用本系统</p>
+            {% elif current_user.is_authenticated and (current_user.has_role('teacher') or
+            current_user.has_role('admin'))%}
+            <h3>
+                欢迎你，{% if current_user.alias_name -%}
+                {{ current_user.alias_name }} 老师
+                {% elif current_user.chinese_name %}
+                {{current_user.chinese_name}} 老师
+                {% else %}
+                {{ current_user.email }}
+                {% endif %}
+            </h3>
 
+            <hr>
+            <div>
+                <div class="table-responsive">
+                    <h5>您今天的课程表</h5>
+
+                    <table class="table table-striped">
+                        <tr>
+                            <th>课程名</th>
+                            <th>地址</th>
+                            <th>课时/小时</th>
+                        </tr>
+
+                        {%for course in selfCourseTable%}
+                        <tr>
+                            <td>
+                                <a href={{ url_for('courses.checkin_view', id=course.id) }}>{{course.name}}</a>
+                            </td>
+                            <td>
+                                {{course.address}}
+                            </td>
+                            <td>
+                                {{course.hours_per_class}}
+                            </td>
+                        </tr>
+                        {%endfor%}
+                    </table>
+                </div>
+                <h4>个人管理</h4>
+                <div class="col-sm-4">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-lg btn-outline dropdown-toggle" data-toggle="dropdown">
+                            个人信息
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li>
+                                <a href={{url_for('teachers.edit_view',id=current_user.id)}}>完善个人信息</a>
+                            </li>
+                            <li>
+                                <a href={{ url_for('security.change_password') }}>修改密码</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-lg btn-outline dropdown-toggle" data-toggle="dropdown">
+                            班级详情
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            {%for course in courses%}
+                            <li>
+                                <a href={{ url_for('courses.details_view', id=course.id) }}>{{course.name}}</a>
+                            </li>
+                            {%endfor%}
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-lg btn-outline dropdown-toggle" data-toggle="dropdown">
+                            上课登记
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            {%for course in courses%}
+                            <li>
+                                <a href={{ url_for('courses.checkin_view', id=course.id) }}>{{course.name}}</a>
+                            </li>
+                            {%endfor%}
+                        </ul>
+                    </div>
+                </div>
             </div>
+            {%endif%}
         </div>
-        <div></div>
-        {% endif %}
     </div>
 </div>
-</div>
-{% endblock body %}
 
+{% if current_user.is_authenticated and current_user.has_role('admin')%}
+<div class="row">
+
+    <div class="col-sm-10 col-sm-offset-1">
+        <div>
+            <hr>
+            <h4>公司管理</h4>
+            <div class="table-responsive">
+                <h5>公司今天的课程表</h5>
+
+                <table class="table table-striped">
+                    <tr>
+                        <th>课程名</th>
+                        <th>任课教师</th>
+                        <th>地址</th>
+                        <th>课时/小时</th>
+                    </tr>
+
+                    {%for course in allCourseTable%}
+                    <tr>
+                        <td>
+                            <a href={{ url_for('courses.checkin_view', id=course.id) }}>{{course.name}}</a>
+                        </td>
+                        <td>
+                            {{course.present_teacher.chinese_name}}
+                        </td>
+                        <td>
+                            {{course.address}}
+                        </td>
+                        <td>
+                            {{course.hours_per_class}}
+                        </td>
+                    </tr>
+                    {%endfor%}
+                </table>
+            </div>
+            <div class="col-sm-4">
+                <div class="btn-group">
+                    <a href='/admin/courses'>
+                        <button type="button"
+                                class="btn btn-lg btn-outline">
+                            查看课程列表
+                        </button>
+                    </a>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="btn-group">
+                    <a href='/admin/teachers'>
+                        <button type="button"
+                                class="btn btn-lg btn-outline">
+                            查看教师列表
+                        </button>
+                    </a>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="btn-group">
+                    <a href='/admin/students'>
+                        <button type="button"
+                                class="btn btn-lg btn-outline">
+                            查看学生列表
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+
+    <div class="col-sm-10 col-sm-offset-1">
+        <div>
+            <hr>
+            <div class="col-sm-4">
+                <div class="btn-group">
+                    <a href='/admin/courses'>
+                        <button type="button"
+                                class="btn btn-lg btn-outline">
+                            等待您确认账户
+                        </button>
+                    </a>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="btn-group">
+                    <a href='/admin/get'>
+                        <button type="button"
+                                class="btn btn-lg btn-outline">
+                            赚了多少？
+                        </button>
+                    </a>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="btn-group">
+                    <a href='/admin/pay'>
+                        <button type="button"
+                                class="btn btn-lg btn-outline">
+                            发了多少？
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock body %}

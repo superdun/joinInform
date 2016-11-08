@@ -1,9 +1,7 @@
 # -*- coding: UTF-8 -*-
 from flask import Flask
-from flask_mail import Mail, Message
 from flask_qiniustorage import Qiniu
 
-from flask_security import Security, SQLAlchemyUserDatastore, current_user
 from flask_marshmallow import Marshmallow
 
 

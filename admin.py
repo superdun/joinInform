@@ -4,17 +4,18 @@ from flask import Flask, url_for, redirect, render_template, request, abort, jso
 from flask_admin import helpers as admin_helpers
 from flask_admin import Admin, AdminIndexView, expose
 
-from flask_qiniustorage import Qiniu
-
 from dbORM import db, Teachers, Courses, Students, Teacherstages, Role
-from TeacherView import TeacherView
+
 from StudentView import StudentView
 from CourseView import CourseView
 from BaseView import MyAdminBaseView
 from TeacherView import TeacherView
 
-from ModuleGlobal import app
+from ModuleGlobal import app, UPLOAD_URL, QINIU_DOMAIN, qiniu_store
 from ModuleSecurity import security, current_user
+
+from ModuleMash import teachers_schema, courses_schema, students_schema, records_schema, teacher_schema, course_schema, \
+    student_schema, record_schema, teacherstage_schema
 
 import requests
 import json
@@ -24,7 +25,6 @@ import ModuleThumb as thumb
 
 
 class MyHomeView(AdminIndexView):
-
     @expose('/')
     def index(self):
         if current_user.is_authenticated:
@@ -34,10 +34,28 @@ class MyHomeView(AdminIndexView):
                 id_list.append(i.id)
             # print (course_list)
             course_list = Courses.query.filter(Courses.id.in_(id_list)).all()
+            course_list = courses_schema.dump(course_list).data
+            today = time.strftime("%m/%d/%Y", time.localtime())
+            selfCourseTable = []
+            for course in course_list:
+                if today in course['dates'].split(', '):
+                    selfCourseTable.append(course)
+            if current_user.has_role('teacher'):
+                return self.render('admin_view/admin/index.html', courses=course_list, selfCourseTable=selfCourseTable)
+            else:
+                allCourseTable = []
+                all_course_list = Courses.query.all()
+                all_course_list = courses_schema.dump(all_course_list).data
 
-            return self.render('admin_view/admin/index.html', courses=course_list)
+                for course in all_course_list:
+                    if today in course['dates'].split(', '):
+                        allCourseTable.append(course)
+                return self.render('admin_view/admin/index.html', courses=course_list, selfCourseTable=selfCourseTable,
+                                   allCourseTable=allCourseTable)
         else:
             return self.render('admin_view/admin/index.html')
+
+
 admin = Admin(app, name=u"卓因信息管理系统", base_template='admin_view/index.html',
               template_mode='bootstrap3', index_view=MyHomeView())
 admin.add_view(TeacherView(Teachers, db.session))
@@ -46,6 +64,7 @@ admin.add_view(CourseView(Courses, db.session))
 
 admin.add_view(MyAdminBaseView(Teacherstages, db.session))
 admin.add_view(MyAdminBaseView(Role, db.session))
+
 
 # define a context processor for merging flask-admin's template context into the
 # flask-security views.
@@ -70,7 +89,18 @@ def upload():
 
 @app.route('/')
 def index():
-    redirect('/admin')
-if __name__ == '__main__':
+    return redirect('/admin')
 
+
+@app.route('/admin/pay')
+def paySum():
+    if current_user.is_authenticated:
+        return render_template('admin_view/pay.html')
+
+@app.route('/admin/get')
+def getSum():
+    if current_user.is_authenticated:
+        return self.render_template('admin_view/get.html')
+
+if __name__ == '__main__':
     app.run(debug=True, port=7778)

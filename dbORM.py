@@ -6,7 +6,6 @@ from flask_security import UserMixin
 
 import time
 
-
 # db
 
 app = Flask(__name__, instance_relative_config=True)
@@ -45,9 +44,11 @@ class Students(db.Model):
     account = db.Column(db.Float)
     mobile = db.Column(db.String(120))
 
-    def __init__(self, chinese_name='', alias_name='', account=0.0, gender=0, birthday='', grade='', school='', adress='', photo='', former_courses='', create_time='', update_time='', present_course_id=0, former_hours=0.0, former_fee='', fomer_discount=0.0, present_discount=0.0, comment='', mobile=''):
+    def __init__(self, chinese_name='', alias_name='', account=0.0, gender=0, birthday='', grade='', school='',
+                 adress='', photo='', former_courses='', create_time='', update_time='', present_course_id=0,
+                 former_hours=0.0, former_fee='', fomer_discount=0.0, present_discount=0.0, comment='', mobile=''):
         self.chinese_name = chinese_name
-        self.alias_name = alias_names
+        self.alias_name = alias_name
         self.gender = gender
         self.birthday = birthday
         self.grade = grade
@@ -71,6 +72,8 @@ class Students(db.Model):
             return self.chinese_name
         elif self.alias_name:
             return self.alias_name
+
+
 # Flask-Admin can't create model if it has constructor with non-default
 # parameters
 
@@ -130,7 +133,7 @@ class Courses(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
     summary = db.Column(db.String(12000))
-    former_teachers = db.Column(db.String(12000),)
+    former_teachers = db.Column(db.String(12000), )
     present_teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id'))
     present_teacher = db.relationship(
         'Teachers', backref=db.backref('course_list', lazy='dynamic'))
@@ -145,13 +148,16 @@ class Courses(db.Model):
     active = db.Column(db.Integer)
     type = db.Column(db.String(120))
     wechat_id = db.Column(db.String(120))
+    address = db.Column(db.String(120))
 
-    def __init__(self, name='', summary='', former_teachers='', present_teacher_id=0, create_time='', update_time='', hours_per_class='',
-                 fee_per_class=0.0, modules='', present_class=0, total_class=0, active=1, dates='', type='out', wechat_id=''):
+    def __init__(self, name='', summary='', former_teachers='', present_teacher_id=0, create_time='', update_time='',
+                 hours_per_class='',
+                 fee_per_class=0.0, modules='', present_class=0, total_class=0, active=1, dates='', type='out',
+                 wechat_id='', address=''):
         self.name = name
         self.summary = summary
         self.former_teachers = former_teachers
-        self.present_teacher_id = present_teancher_id
+        self.present_teacher_id = present_teacher_id
         self.create_time = create_time
         self.update_time = update_time
         self.hours_per_class = hours_per_class
@@ -164,6 +170,7 @@ class Courses(db.Model):
         self.active = active
         self.type = type
         self.wechat_id = wechat_id
+        self.address = address
 
     def __repr__(self):
         return self.name
@@ -187,7 +194,8 @@ class Records(db.Model):
     pay = db.Column(db.Float)
     aspay = db.Column(db.Float)
 
-    def __init__(self, date='', attend_list='', comment='', substitute_id=None, assistant_id=None, substitute=0, assistant=0, pay=0, aspay=0):
+    def __init__(self, date='', attend_list='', comment='', substitute_id=None, assistant_id=None, substitute=0,
+                 assistant=0, pay=0, aspay=0):
         self.date = date
         self.attend_list = attend_list
         self.comment = comment

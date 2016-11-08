@@ -102,12 +102,16 @@
         }
 
     }
+var today = new Date();
+var y = today.getFullYear();
+if($('#dates').val() !=null){
+     $('#dates').multiDatesPicker({
+         addDates: $('#dates').val().split(', '),
+         numberOfMonths: [3,4],
+         defaultDate: '1/1/'+y
+     }) ;
+}
 
-    // $('#dates').multiDatesPicker({
-    //     addDates: dates,
-    //     numberOfMonths: [3,4],
-    //     defaultDate: '1/1/'+y
-    // }) ; 
 
     var getSum = function(record){
         var sum = 0 
